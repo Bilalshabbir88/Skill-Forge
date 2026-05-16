@@ -16,6 +16,10 @@ const lessonSchema = new mongoose.Schema(
         url:  { type: String, required: true },
       },
     ],
+    interactiveQuizzes: [{
+      timestamp: { type: Number, required: true },
+      question: { type: mongoose.Schema.Types.ObjectId, ref: 'Question', required: true }
+    }]
   },
   { timestamps: true }
 );

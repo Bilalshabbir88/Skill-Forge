@@ -12,6 +12,7 @@ import {
   Home,
   Library,
   Award,
+  Database,
   User,
   LogOut,
   PlusCircle,
@@ -37,6 +38,8 @@ const Navbar = () => {
       return [
         { name: 'Home', path: '/', icon: Home },
         { name: 'Courses', path: '/courses', icon: BookOpen },
+        { name: 'Specializations', path: '/specializations', icon: Award },
+        { name: 'Datasets', path: '/datasets', icon: Database },
       ];
     }
 
@@ -46,7 +49,8 @@ const Navbar = () => {
           { name: 'Home', path: '/', icon: Home },
           { name: 'My Courses', path: '/student/dashboard', icon: Library },
           { name: 'Catalog', path: '/courses', icon: BookOpen },
-          { name: 'Certificates', path: '/student/dashboard', icon: Award },
+          { name: 'Specializations', path: '/specializations', icon: Award },
+          { name: 'Datasets', path: '/datasets', icon: Database },
         ];
       case 'instructor':
         return [
@@ -136,7 +140,7 @@ const Navbar = () => {
                   className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 >
                   <img
-                    src={user.profileImage}
+                    src={user.profilePicture || 'https://via.placeholder.com/150'}
                     alt={user.name}
                     className="w-8 h-8 rounded-full border-2 border-primary-500"
                   />

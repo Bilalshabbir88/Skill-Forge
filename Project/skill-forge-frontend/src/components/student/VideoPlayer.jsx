@@ -1,10 +1,11 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import ReactPlayer from 'react-player';
-import { Play, Pause, Volume2, VolumeX, Maximize, RotateCcw, Settings } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Maximize, RotateCcw, Settings, HelpCircle } from 'lucide-react';
 import api from '../../api/api';
 
-const VideoPlayer = ({ videoUrl, lessonId, enrollmentId, onLessonComplete }) => {
+const VideoPlayer = ({ videoUrl, lessonId, enrollmentId, onLessonComplete, interactiveQuizzes = [], onQuizTrigger }) => {
   const playerRef = useRef(null);
+  const triggeredQuizzes = useRef(new Set());
   const [playing, setPlaying] = useState(false);
   const [played, setPlayed] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -15,6 +16,17 @@ const VideoPlayer = ({ videoUrl, lessonId, enrollmentId, onLessonComplete }) => 
 
   const handleProgress = async (state) => {
     setPlayed(state.played);
+    const currentTime = state.playedSeconds;
+
+    // Check for interactive quizzes
+    interactiveQuizzes.forEach(quiz => {
+      const qId = quiz._id || quiz.question;
+      if (Math.abs(currentTime - quiz.timestamp) < 1 && !triggeredQuizzes.current.has(qId)) {
+        setPlaying(false);
+        triggeredQuizzes.current.add(qId);
+        if (onQuizTrigger) onQuizTrigger(quiz);
+      }
+    });
 
     // Mark as complete when 90% watched (only once)
     if (state.played > 0.9 && !progressSent && enrollmentId && lessonId) {

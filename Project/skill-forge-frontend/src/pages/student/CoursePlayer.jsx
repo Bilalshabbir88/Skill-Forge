@@ -4,10 +4,16 @@ import { useAuth } from '../../context/AuthContext';
 import { useEnrollment } from '../../context/EnrollmentContext';
 import api from '../../api/api';
 import {
-  ChevronLeft, ChevronRight, Download, FileText, Award, Menu, X, CheckCircle, Lock,
+  ChevronLeft, ChevronRight, Download, FileText, Award, Menu, X, CheckCircle, Lock, Code, PlayCircle, HelpCircle, XCircle
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter
+} from '../../components/ui/dialog';
 import Navbar from '../../components/shared/Navbar';
+import AITutor from '../../components/student/AITutor';
+import CodeLab from '../../components/student/CodeLab';
+import VideoPlayer from '../../components/student/VideoPlayer';
 
 const CoursePlayer = () => {
   const { id } = useParams(); // course ID
@@ -18,10 +24,16 @@ const CoursePlayer = () => {
   const [course, setCourse] = useState(null);
   const [modules, setModules] = useState([]);
   const [currentLesson, setCurrentLesson] = useState(null);
+  const [currentLab, setCurrentLab] = useState(null);
+  const [viewMode, setViewMode] = useState('video'); // 'video' or 'lab'
   const [progress, setProgress] = useState({}); // { [lessonId]: { isCompleted, watchedSeconds } }
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [videoUrl, setVideoUrl] = useState(null);
+  const [labs, setLabs] = useState([]);
+  const [activeQuiz, setActiveQuiz] = useState(null);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [quizResult, setQuizResult] = useState(null); // 'correct' or 'incorrect'
   const pingInterval = useRef(null);
   const watchedSeconds = useRef(0);
 
@@ -32,13 +44,15 @@ const CoursePlayer = () => {
   }, [id]);
 
   useEffect(() => {
-    if (currentLesson) fetchLessonVideo(currentLesson);
+    if (currentLesson) {
+      fetchLessonVideo(currentLesson);
+      fetchModuleLabs(currentLesson.module);
+    }
   }, [currentLesson?._id]);
 
   const fetchCourseData = async () => {
     try {
       setLoading(true);
-      // GET /api/courses/:id/full — returns full course with all lesson data
       const res = await api.get(`/courses/${id}/full`);
       const courseData = res.data.data;
       setCourse(courseData);
@@ -55,6 +69,15 @@ const CoursePlayer = () => {
     }
   };
 
+  const fetchModuleLabs = async (moduleId) => {
+    try {
+      const res = await api.get(`/modules/${moduleId}/labs`);
+      setLabs(res.data.data || []);
+    } catch (error) {
+      console.error('Error fetching labs:', error);
+    }
+  };
+
   const fetchProgress = async () => {
     try {
       const res = await api.get(`/progress/course/${id}`);
@@ -64,23 +87,17 @@ const CoursePlayer = () => {
         map[p.lesson] = { isCompleted: p.isCompleted, watchedSeconds: p.watchedSeconds };
       });
       setProgress(map);
-    } catch { /* ignore — not enrolled or first visit */ }
+    } catch { /* ignore */ }
   };
 
   const fetchLessonVideo = async (lesson) => {
     try {
-      // GET /api/courses/:courseId/modules/:moduleId/lessons/:lessonId/watch
       const res = await api.get(
         `/courses/${id}/modules/${lesson.module}/lessons/${lesson._id}/watch`
       );
       setVideoUrl(res.data.data?.videoUrl || lesson.videoUrl);
     } catch (err) {
-      if (err.response?.status === 403) {
-        setVideoUrl(null);
-      } else {
-        // Fallback to stored URL
-        setVideoUrl(lesson.videoUrl);
-      }
+      setVideoUrl(lesson.videoUrl);
     }
   };
 
@@ -97,8 +114,7 @@ const CoursePlayer = () => {
           [lesson._id]: { ...prev[lesson._id], isCompleted: result.isCompleted, watchedSeconds: watchedSeconds.current },
         }));
         if (result.isCompleted && !progress[lesson._id]?.isCompleted) {
-          const next = getNextLesson(lesson._id);
-          if (next) setTimeout(() => setCurrentLesson(next), 1500);
+          // auto next logic could go here
         }
       }
     }, 10000);
@@ -148,6 +164,19 @@ const CoursePlayer = () => {
     return !progress[prev._id]?.isCompleted;
   };
 
+  const handleQuizSubmit = () => {
+    if (selectedOption === activeQuiz.question.correctOption) {
+      setQuizResult('correct');
+      setTimeout(() => {
+        setActiveQuiz(null);
+        setSelectedOption(null);
+        setQuizResult(null);
+      }, 2000);
+    } else {
+      setQuizResult('incorrect');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-950 flex items-center justify-center">
@@ -164,7 +193,6 @@ const CoursePlayer = () => {
       <div className="min-h-screen bg-gray-950 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-white mb-2">Course Not Found</h2>
-          <p className="text-gray-400 mb-6">You may not have access to this course.</p>
           <Button onClick={() => navigate('/student/dashboard')}>Back to Dashboard</Button>
         </div>
       </div>
@@ -186,92 +214,137 @@ const CoursePlayer = () => {
           <div className="hidden md:block h-6 w-px bg-gray-700"></div>
           <h1 className="hidden md:block text-lg font-bold text-white truncate max-w-md">{course.title}</h1>
         </div>
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="p-2 rounded-lg hover:bg-gray-800 transition-colors text-gray-400"
-        >
-          {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
+        <div className="flex items-center space-x-2">
+           {labs.length > 0 && (
+             <div className="flex bg-gray-800 rounded-lg p-1 mr-4">
+                <button 
+                  onClick={() => setViewMode('video')}
+                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center space-x-1 ${viewMode === 'video' ? 'bg-primary-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
+                >
+                  <PlayCircle size={14} /> <span>Video</span>
+                </button>
+                <button 
+                  onClick={() => { setViewMode('lab'); if (!currentLab) setCurrentLab(labs[0]); }}
+                  className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center space-x-1 ${viewMode === 'lab' ? 'bg-primary-600 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
+                >
+                  <Code size={14} /> <span>Hands-on Lab</span>
+                </button>
+             </div>
+           )}
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="p-2 rounded-lg hover:bg-gray-800 transition-colors text-gray-400"
+          >
+            {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
       </div>
 
       {/* Main */}
       <div className="flex-1 flex overflow-hidden">
         {/* Video + info */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-6">
-          <div className="max-w-5xl mx-auto">
-            {/* Video */}
-            <div className="aspect-video bg-black rounded-xl overflow-hidden mb-6">
-              {videoUrl ? (
-                <iframe
-                  key={videoUrl}
-                  src={videoUrl.replace('watch?v=', 'embed/')}
-                  className="w-full h-full"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  onLoad={() => currentLesson && startProgressPing(currentLesson)}
-                />
-              ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center text-gray-500">
-                  <Lock size={48} className="mb-3" />
-                  <p>Complete the previous lesson to unlock this one</p>
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-[#0a0c12]">
+          <div className="max-w-6xl mx-auto h-full flex flex-col">
+            {viewMode === 'video' ? (
+              <>
+                {/* Video */}
+                <div className="mb-6 shadow-2xl">
+                  {videoUrl ? (
+                    <VideoPlayer
+                      videoUrl={videoUrl}
+                      lessonId={currentLesson?._id}
+                      enrollmentId={id} 
+                      interactiveQuizzes={currentLesson?.interactiveQuizzes || []}
+                      onQuizTrigger={(quiz) => setActiveQuiz(quiz)}
+                      onLessonComplete={() => {}}
+                    />
+                  ) : (
+                    <div className="aspect-video bg-black rounded-xl overflow-hidden flex flex-col items-center justify-center text-gray-500">
+                      <Lock size={48} className="mb-3" />
+                      <p>Complete the previous lesson to unlock this one</p>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
-            {/* Lesson info */}
-            <div className="space-y-4">
-              <div>
-                <h2 className="text-2xl font-bold text-white mb-2">{currentLesson?.title}</h2>
-                {currentLesson?.description && (
-                  <p className="text-gray-400">{currentLesson.description}</p>
-                )}
-              </div>
+                {/* Lesson info */}
+                <div className="space-y-4">
+                  <div>
+                    <h2 className="text-2xl font-bold text-white mb-2">{currentLesson?.title}</h2>
+                    {currentLesson?.description && (
+                      <p className="text-gray-400">{currentLesson.description}</p>
+                    )}
+                  </div>
 
-              {/* Attachments */}
-              {currentLesson?.attachments?.length > 0 && (
-                <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                    <FileText size={20} /> Lesson Resources
-                  </h3>
-                  <div className="space-y-2">
-                    {currentLesson.attachments.map((att, i) => (
-                      <a
-                        key={i}
-                        href={att.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center justify-between p-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors"
-                      >
-                        <div className="flex items-center gap-3">
-                          <FileText className="w-5 h-5 text-blue-400" />
-                          <span className="text-sm font-medium text-white">{att.name}</span>
-                        </div>
-                        <Download className="w-5 h-5 text-gray-400" />
-                      </a>
-                    ))}
+                  {/* Resources */}
+                  {currentLesson?.attachments?.length > 0 && (
+                    <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-6">
+                      <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                        <FileText size={20} className="text-primary-500" /> Lesson Resources
+                      </h3>
+                      <div className="grid sm:grid-cols-2 gap-3">
+                        {currentLesson.attachments.map((att, i) => (
+                          <a
+                            key={i}
+                            href={att.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center justify-between p-4 bg-gray-800/50 rounded-xl hover:bg-gray-800 transition-colors border border-transparent hover:border-gray-700"
+                          >
+                            <div className="flex items-center gap-3">
+                              <FileText className="w-5 h-5 text-primary-400" />
+                              <span className="text-sm font-medium text-white">{att.name}</span>
+                            </div>
+                            <Download className="w-5 h-5 text-gray-500" />
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Navigation */}
+                  <div className="flex items-center justify-between pt-6 border-t border-gray-800">
+                    <Button
+                      onClick={() => { stopProgressPing(); const p = getPreviousLesson(currentLesson?._id); if (p) setCurrentLesson(p); }}
+                      disabled={!getPreviousLesson(currentLesson?._id)}
+                      variant="outline"
+                      className="border-gray-700 text-gray-300"
+                    >
+                      <ChevronLeft size={16} /> Previous
+                    </Button>
+                    <Button
+                      onClick={() => { stopProgressPing(); const n = getNextLesson(currentLesson?._id); if (n) setCurrentLesson(n); }}
+                      disabled={!getNextLesson(currentLesson?._id)}
+                      className="bg-primary-600 hover:bg-primary-700"
+                    >
+                      Next <ChevronRight size={16} />
+                    </Button>
                   </div>
                 </div>
-              )}
-
-              {/* Navigation */}
-              <div className="flex items-center justify-between pt-4 border-t border-gray-800">
-                <Button
-                  onClick={() => { stopProgressPing(); const p = getPreviousLesson(currentLesson?._id); if (p) setCurrentLesson(p); }}
-                  disabled={!getPreviousLesson(currentLesson?._id)}
-                  variant="outline"
-                  className="flex items-center gap-2"
-                >
-                  <ChevronLeft size={16} /> Previous
-                </Button>
-                <Button
-                  onClick={() => { stopProgressPing(); const n = getNextLesson(currentLesson?._id); if (n) setCurrentLesson(n); }}
-                  disabled={!getNextLesson(currentLesson?._id)}
-                  className="flex items-center gap-2"
-                >
-                  Next <ChevronRight size={16} />
-                </Button>
+              </>
+            ) : (
+              <div className="flex-1 min-h-0">
+                {currentLab ? (
+                  <CodeLab lab={currentLab} />
+                ) : (
+                  <div className="h-full flex items-center justify-center text-gray-500">
+                    <p>Select a lab from the list below</p>
+                  </div>
+                )}
+                {labs.length > 1 && (
+                   <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
+                      {labs.map((l, idx) => (
+                        <button 
+                          key={l._id}
+                          onClick={() => setCurrentLab(l)}
+                          className={`px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all border ${currentLab?._id === l._id ? 'bg-primary-600/20 border-primary-500 text-primary-400' : 'bg-gray-900 border-gray-800 text-gray-500 hover:text-white'}`}
+                        >
+                          Lab {idx + 1}: {l.title}
+                        </button>
+                      ))}
+                   </div>
+                )}
               </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -293,11 +366,11 @@ const CoursePlayer = () => {
                       return (
                         <button
                           key={lesson._id}
-                          onClick={() => { if (!locked) { stopProgressPing(); setCurrentLesson(lesson); } }}
+                          onClick={() => { if (!locked) { stopProgressPing(); setCurrentLesson(lesson); setViewMode('video'); } }}
                           disabled={locked}
                           className={`w-full text-left px-3 py-3 rounded-lg transition-all flex items-center gap-3 ${
                             isActive
-                              ? 'bg-blue-600 text-white'
+                              ? 'bg-primary-600 text-white shadow-lg'
                               : locked
                               ? 'text-gray-600 cursor-not-allowed'
                               : 'text-gray-300 hover:bg-gray-800'
@@ -316,9 +389,6 @@ const CoursePlayer = () => {
                             <p className="text-sm font-medium truncate">{lesson.title}</p>
                             <p className="text-xs opacity-60">{Math.round((lesson.duration || 0) / 60)} min</p>
                           </div>
-                          {lesson.isFreePreview && !isActive && (
-                            <span className="text-xs text-blue-400 flex-shrink-0">Free</span>
-                          )}
                         </button>
                       );
                     })}
@@ -329,6 +399,65 @@ const CoursePlayer = () => {
           </div>
         )}
       </div>
+
+      {/* AI Tutor */}
+      <AITutor context={`Student is watching ${course.title}, currently at module "${currentLesson?.module}" and lesson "${currentLesson?.title}". Description: ${currentLesson?.description}`} />
+
+      {/* In-Video Quiz Modal */}
+      {activeQuiz && (
+        <Dialog open={!!activeQuiz} onOpenChange={() => {}}>
+          <DialogContent className="sm:max-w-md bg-gray-900 border-gray-800 text-white">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <HelpCircle className="text-primary-500" /> Knowledge Check
+              </DialogTitle>
+              <DialogDescription className="text-gray-400">
+                Pause and reflect! Answer this question to continue.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="py-4">
+              <h3 className="text-lg font-bold mb-4">{activeQuiz.question?.text}</h3>
+              <div className="space-y-2">
+                {activeQuiz.question?.options?.map((opt, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setSelectedOption(idx)}
+                    className={`w-full text-left p-4 rounded-xl border transition-all ${
+                      selectedOption === idx 
+                        ? 'border-primary-500 bg-primary-500/10' 
+                        : 'border-gray-800 bg-gray-800/50 hover:bg-gray-800'
+                    }`}
+                  >
+                    <span className="font-bold mr-3">{opt.label}.</span> {opt.text}
+                  </button>
+                ))}
+              </div>
+
+              {quizResult === 'correct' && (
+                <p className="mt-4 text-green-400 font-bold flex items-center gap-2 animate-bounce">
+                  <CheckCircle size={18} /> Correct! Resuming video...
+                </p>
+              )}
+              {quizResult === 'incorrect' && (
+                <p className="mt-4 text-red-400 font-bold flex items-center gap-2">
+                  <XCircle size={18} /> Not quite. Try again!
+                </p>
+              )}
+            </div>
+
+            <DialogFooter>
+              <Button 
+                onClick={handleQuizSubmit} 
+                disabled={selectedOption === null || quizResult === 'correct'}
+                className="w-full bg-primary-600 hover:bg-primary-700"
+              >
+                Submit Answer
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };

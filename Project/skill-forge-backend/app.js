@@ -7,12 +7,12 @@ const xss = require('xss-clean');
 const hpp = require('hpp');
 const morgan = require('morgan');
 const swaggerUi = require('swagger-ui-express');
+const logger = require('./utils/logger'); // Moved up
 const passport = require('./config/passport');
 const swaggerSpec = require('./config/swagger');
 const routes = require('./routes/index');
 const { globalRateLimiter } = require('./middleware/rateLimiter.middleware');
 const errorHandler = require('./middleware/error.middleware');
-const logger = require('./utils/logger');
 
 const app = express();
 

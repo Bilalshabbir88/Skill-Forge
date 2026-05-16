@@ -30,7 +30,12 @@ export const AuthProvider = ({ children }) => {
       }
       setLoading(false);
     };
-    initializeAuth();
+    try {
+      initializeAuth();
+    } catch (e) {
+      console.error('Fatal auth init error:', e);
+      setLoading(false);
+    }
   }, []);
 
   const login = async (email, password) => {

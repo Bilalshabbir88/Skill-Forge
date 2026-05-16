@@ -9,40 +9,37 @@ import api from '../../api/api';
 
 const CourseCatalog = () => {
   const [courses, setCourses] = useState([]);
+  const [categories, setCategories] = useState(['all']);
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [priceFilter, setPriceFilter] = useState('all');
 
-  const categories = [
-    'all',
-    'Web Development',
-    'Data Science',
-    'Mobile Development',
-    'Design',
-    'Business',
-    'Marketing',
-    'Photography',
-  ];
-
   useEffect(() => {
-    fetchCourses();
+    fetchData();
   }, []);
 
   useEffect(() => {
     filterCourses();
   }, [searchTerm, selectedCategory, priceFilter, courses]);
 
-  const fetchCourses = async () => {
+  const fetchData = async () => {
     try {
-      // Backend returns { data: { courses: [...], total, page } }
-      const res = await api.get('/courses', { params: { limit: 100 } });
-      const coursesData = res.data.data?.courses || [];
+      setLoading(true);
+      const [coursesRes, categoriesRes] = await Promise.all([
+        api.get('/courses', { params: { limit: 100 } }),
+        api.get('/categories')
+      ]);
+
+      const coursesData = coursesRes.data.data?.courses || [];
+      const categoriesData = categoriesRes.data.data || [];
+      
       setCourses(coursesData);
       setFilteredCourses(coursesData);
+      setCategories(['all', ...categoriesData.map(c => c.name)]);
     } catch (error) {
-      console.error('Error fetching courses:', error);
+      console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
     }

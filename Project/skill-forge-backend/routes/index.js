@@ -9,5 +9,9 @@ router.use('/enrollments', require('./enrollment.routes'));
 router.use('/progress', require('./progress.routes'));
 router.use('/certificates', require('./certificate.routes'));
 router.use('/admin', require('./admin.routes'));
+router.use('/specializations', require('./specialization.routes'));
+router.use('/datasets', require('./dataset.routes'));
+router.use('/', require('./codingLab.routes'));
+router.use('/ai', require('./ai.routes'));
 
 module.exports = router;
