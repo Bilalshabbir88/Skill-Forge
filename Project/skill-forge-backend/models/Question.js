@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const questionSchema = new mongoose.Schema(
   {
-    quiz: { type: mongoose.Schema.Types.ObjectId, ref: 'Quiz', required: true },
+    quiz: { type: mongoose.Schema.Types.ObjectId, ref: 'Quiz', required: false },
     text: { type: String, required: true, trim: true },
     options: [
       {
@@ -16,13 +16,5 @@ const questionSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
-// Validate exactly 4 options
-questionSchema.pre('save', function (next) {
-  if (this.options.length !== 4) {
-    return next(new Error('Each question must have exactly 4 options.'));
-  }
-  next();
-});
 
 module.exports = mongoose.model('Question', questionSchema);

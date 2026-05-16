@@ -1,60 +1,51 @@
 # SkillForge: Data Science Edition 🚀
 
-SkillForge is a comprehensive, production-ready Learning Management System (LMS) specifically designed for Data Science education. It combines standard video-based learning with advanced interactive features like in-browser coding, AI tutoring, and specialization tracks.
+SkillForge is a world-class Learning Management System (LMS) optimized for the next generation of Data Scientists. Built with **React 19** and **Node.js**, it offers a Coursera-like experience featuring high-end interactive tools and specialized career tracks.
 
-## ✨ Key Features
+## 📖 Essential Documentation
+- **[Full User Guide](./Project/Docs/USER_GUIDE.md):** Detailed instructions for Students, Instructors, and Admins.
+- **[Technical Specification](./Project/Docs/SkillForge_Backend_Spec_v2.md):** Deep dive into the API architecture.
 
-### 📊 Data Science Specialized
-- **Hands-on Coding Labs:** Integrated Monaco Editor (VS Code engine) for writing Python and R code directly in your browser.
-- **Judge0 Execution:** Secure backend execution of student code with real-time feedback and test case validation.
-- **AI Tutoring Assistant:** A context-aware AI helper that guides students through difficult concepts and debugging.
-- **Professional Specializations:** Grouped course tracks leading to professional certifications.
-- **Dataset Library:** A searchable repository of open-source datasets for student practice.
+## ✨ High-End Features
+- **Hands-on Coding Labs:** Write and run Python/R code in-browser using the **Monaco Editor** and **Judge0 API**.
+- **AI Tutoring Assistant:** Context-aware bot to help students debug and learn technical concepts.
+- **Interactive Video Player:** Automated in-video knowledge checks (Quizzes) triggered by timestamps.
+- **Professional Specializations:** Grouped learning paths (e.g., *Deep Learning Specialization*) leading to certifications.
+- **Data Library:** A searchable repository for open-source datasets (Kaggle-style).
 
-### 🎓 Advanced LMS Capabilities
-- **Interactive Video Player:** Videos automatically pause at specific timestamps for knowledge-check quizzes.
-- **Course Management:** Full CRUD for courses, modules, and lessons.
-- **Role-Based Access Control:** Distinct workflows for Students, Instructors, and Admins.
-- **Progress Tracking:** Granular tracking of lesson completion and quiz scores.
-- **Certificates:** Automated generation of certificates upon course completion.
-
-## 🛠️ Technology Stack
-
+## 🛠️ Tech Stack
 - **Frontend:** React 19, Vite, Tailwind CSS, Monaco Editor, Lucide Icons.
-- **Backend:** Node.js, Express, MongoDB (Mongoose), Passport.js (JWT & Google OAuth).
-- **Integrations:** Judge0 (Code Execution), OpenAI/Gemini (AI Tutoring), Cloudinary (Media Storage).
+- **Backend:** Node.js, Express, MongoDB (Mongoose), Passport.js (JWT & OAuth).
+- **Automation:** Specialized Data Science Seeder with 50+ students and technical curricula.
 
-## 🚀 Getting Started
+## 🚀 Quick Start
 
-### 1. Backend Setup
+### 1. Clone and Install
 ```bash
+# Install Backend
 cd Project/skill-forge-backend
 npm install
-# Configure your .env file with MongoDB URI and API Keys
-npm run seed:ds  # Seed high-quality Data Science content
-npm run dev      # Start development server
+
+# Install Frontend
+cd ../skill-forge-frontend
+npm install
 ```
 
-### 2. Frontend Setup
+### 2. Seed and Launch
 ```bash
-cd Project/skill-forge-frontend
-npm install
-# Configure VITE_API_URL in .env
+# From the backend directory
+npm run seed:ds  # Populates 50 students, 5 instructors, and technical courses
+npm run dev
+
+# From the frontend directory
 npm run dev
 ```
 
-## 📂 Project Structure
-
-- `/Project/skill-forge-backend`: Express API and Database Models.
-- `/Project/skill-forge-frontend`: React Application and UI Components.
-- `/Project/Docs`: Project reports, SRS documentation, and technical specs.
-- `/Assets`: Brand assets and logos.
-
-## 🛡️ Security & Stability
-- Global Error Boundaries to prevent site crashes.
-- Robust JWT-based authentication.
-- NoSQL injection and XSS protection middleware.
-- Secure API proxying for AI and Code Execution services.
+## 🔑 Demo Access
+| Account | Email | Password |
+| :--- | :--- | :--- |
+| **Admin** | `admin@skillforge.com` | `Admin@123456` |
+| **Student** | `student1@skillforge.com` | `Test@123456` |
 
 ---
-Created by Bilal Shabbir | 2026
+Created by Bilal Shabbir | 5th Semester Web Technologies Project

@@ -24,39 +24,19 @@ const Login = () => {
     setError(''); // Clear error on input change
   };
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      // Await the async login function
       const user = await login(formData.email, formData.password);
-
       toast.success(`Welcome back, ${user.name}!`);
 
       // Redirect based on role
       navigate(`/${user.role}/dashboard`);
-
     } catch (err) {
       const msg = err?.response?.data?.message || err?.message || 'Login failed. Check your credentials.';
-      setError(msg);
-      toast.error(msg);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Quick login buttons for testing
-  const quickLogin = async (email, password, role) => {
-    setError('');
-    setLoading(true);
-    try {
-      const user = await login(email, password);
-      toast.success(`Logged in as ${role}`);
-      navigate(`/${user.role}/dashboard`);
-    } catch (err) {
-      const msg = err?.response?.data?.message || err?.message || 'Login failed.';
       setError(msg);
       toast.error(msg);
     } finally {
@@ -84,7 +64,7 @@ const Login = () => {
 
         {/* Login Form */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-8 border border-gray-200 dark:border-gray-700">
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          <form className="space-y-6" onSubmit={handleLogin}>
             {/* Error Message */}
             {error && (
               <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-start space-x-3">
@@ -196,36 +176,6 @@ const Login = () => {
                 Sign up now
               </Link>
             </p>
-          </div>
-
-          {/* Quick Login (for testing) */}
-          <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-            <p className="text-xs text-gray-500 dark:text-gray-400 text-center mb-3">
-              Quick Login (Demo)
-            </p>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => quickLogin('student1@skillforge.com', 'Test@123456', 'Student')}
-                className="px-3 py-2 text-xs font-medium bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
-              >
-                Student Demo
-              </button>
-              <button
-                type="button"
-                onClick={() => quickLogin('instructor1@skillforge.com', 'Test@123456', 'Instructor')}
-                className="px-3 py-2 text-xs font-medium bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-colors"
-              >
-                Instructor Demo
-              </button>
-              <button
-                type="button"
-                onClick={() => quickLogin('admin@skillforge.com', 'Admin@123456', 'Admin')}
-                className="px-3 py-2 text-xs font-medium bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
-              >
-                Admin Demo
-              </button>
-            </div>
           </div>
         </div>
 

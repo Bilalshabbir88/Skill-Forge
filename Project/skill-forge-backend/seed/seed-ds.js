@@ -22,16 +22,18 @@ const DS_CATEGORIES = [
   { name: 'Machine Learning', slug: 'machine-learning' },
   { name: 'Artificial Intelligence', slug: 'ai' },
   { name: 'Data Visualization', slug: 'data-viz' },
-  { name: 'Big Data', slug: 'big-data' },
+  { name: 'Big Data & Cloud', slug: 'big-data' },
   { name: 'Statistics & Probability', slug: 'statistics' },
   { name: 'Python for Data Science', slug: 'python-ds' },
   { name: 'SQL & Databases', slug: 'sql-databases' },
+  { name: 'Natural Language Processing', slug: 'nlp' },
+  { name: 'Deep Learning', slug: 'deep-learning' },
 ];
 
 const DS_COURSES = [
   {
     title: 'Python for Data Science & Machine Learning',
-    description: 'Learn how to use NumPy, Pandas, Seaborn, Matplotlib, Scikit-Learn, and more! This is the most comprehensive course for Data Science on Skill Forge.',
+    description: 'Master the essentials of Python for Data Science. Learn NumPy, Pandas, Matplotlib, and Scikit-Learn from scratch.',
     difficulty: 'beginner',
     category: 'python-ds',
     tags: ['python', 'pandas', 'numpy', 'scikit-learn'],
@@ -40,7 +42,7 @@ const DS_COURSES = [
         title: 'Environment Setup & Basics',
         lessons: [
           { title: 'Installing Anaconda and Jupyter', duration: 600 },
-          { title: 'Python Basics Recap', duration: 1200 },
+          { title: 'Python Basics for Data Science', duration: 1200 },
           { title: 'Working with Virtual Environments', duration: 450 }
         ]
       },
@@ -48,42 +50,81 @@ const DS_COURSES = [
         title: 'Data Analysis with Pandas',
         lessons: [
           { title: 'Introduction to DataFrames', duration: 900 },
-          { title: 'Cleaning Data with Pandas', duration: 1100 },
-          { title: 'Groupby and Pivoting', duration: 800 }
+          { title: 'Cleaning & Preparing Data', duration: 1100 },
+          { title: 'Advanced Grouping & Pivoting', duration: 800 }
         ]
       }
     ]
   },
   {
-    title: 'Machine Learning A-Z™: Hands-On Python & R',
-    description: 'Learn to create Machine Learning Algorithms in Python and R from two Data Science experts. Code templates included.',
+    title: 'Machine Learning A-Z™: Hands-On Python',
+    description: 'Learn to create Machine Learning Algorithms in Python. Build a portfolio of 10+ real-world ML projects.',
     difficulty: 'intermediate',
     category: 'machine-learning',
     tags: ['ml', 'regression', 'classification', 'clustering'],
     modules: [
       {
-        title: 'Regression Analysis',
+        title: 'Regression Mastery',
         lessons: [
-          { title: 'Simple Linear Regression', duration: 1000 },
-          { title: 'Multiple Linear Regression', duration: 1200 },
-          { title: 'Polynomial Regression', duration: 900 }
+          { title: 'Simple & Multiple Linear Regression', duration: 1000 },
+          { title: 'Polynomial & SVR Models', duration: 1200 },
+          { title: 'Decision Trees & Random Forests', duration: 900 }
+        ]
+      },
+      {
+        title: 'Classification Algorithms',
+        lessons: [
+          { title: 'Logistic Regression Explained', duration: 850 },
+          { title: 'K-Nearest Neighbors (K-NN)', duration: 700 },
+          { title: 'Support Vector Machines (SVM)', duration: 1100 }
         ]
       }
     ]
   },
   {
-    title: 'Statistics for Data Science Bootcamp',
-    description: 'Master the statistics, probability, and hypothesis testing needed to become a professional data scientist.',
-    difficulty: 'beginner',
-    category: 'statistics',
-    tags: ['statistics', 'probability', 'hypothesis-testing'],
+    title: 'Deep Learning with PyTorch & TensorFlow',
+    description: 'The complete guide to Neural Networks. Build CNNs, RNNs, and LSTMs for computer vision and text analysis.',
+    difficulty: 'advanced',
+    category: 'deep-learning',
+    tags: ['deep-learning', 'neural-networks', 'pytorch', 'tensorflow'],
     modules: [
       {
-        title: 'Descriptive Statistics',
+        title: 'Neural Network Foundations',
         lessons: [
-          { title: 'Mean, Median, and Mode', duration: 500 },
-          { title: 'Standard Deviation and Variance', duration: 600 },
-          { title: 'Distributions and Z-Scores', duration: 750 }
+          { title: 'The Neuron & Backpropagation', duration: 1500 },
+          { title: 'Activation Functions Deep Dive', duration: 1200 }
+        ]
+      }
+    ]
+  },
+  {
+    title: 'SQL for Data Analytics & BI',
+    description: 'Master SQL for data extraction and business intelligence. Learn PostgreSQL and MySQL optimization techniques.',
+    difficulty: 'beginner',
+    category: 'sql-databases',
+    tags: ['sql', 'postgres', 'bi', 'analytics'],
+    modules: [
+      {
+        title: 'SQL Querying Basics',
+        lessons: [
+          { title: 'SELECT, FROM, and WHERE', duration: 600 },
+          { title: 'Joins & Subqueries', duration: 1400 }
+        ]
+      }
+    ]
+  },
+  {
+    title: 'Tableau for Data Visualization',
+    description: 'Create stunning, interactive dashboards. Learn the art of storytelling with data using Tableau and Power BI.',
+    difficulty: 'beginner',
+    category: 'data-viz',
+    tags: ['tableau', 'dashboard', 'visualization', 'bi'],
+    modules: [
+      {
+        title: 'Building Your First Dashboard',
+        lessons: [
+          { title: 'Connecting to Data Sources', duration: 500 },
+          { title: 'Calculated Fields & Parameters', duration: 900 }
         ]
       }
     ]
@@ -95,42 +136,38 @@ const DS_QUESTIONS = [
   { text: 'What does "p-value" represent in statistical hypothesis testing?', options: ['Probability of the data given the null hypothesis', 'Probability of the alternative hypothesis', 'The power of the test', 'Effect size'], correct: 0 },
   { text: 'In Linear Regression, what do we minimize?', options: ['Mean Absolute Error', 'Sum of Squared Residuals', 'Root Mean Squared Error', 'Total Error'], correct: 1 },
   { text: 'Which algorithm is an example of Unsupervised Learning?', options: ['Logistic Regression', 'Random Forest', 'K-Means Clustering', 'SVM'], correct: 2 },
-  { text: 'What is the purpose of a Confusion Matrix?', options: ['To confuse the model', 'To visualize dataset columns', 'To evaluate classification performance', 'To handle missing values'], correct: 2 },
-  { text: 'What is "Overfitting"?', options: ['Model is too simple', 'Model performs well on training but poorly on test data', 'Model is too large for memory', 'None of the above'], correct: 1 },
-  { text: 'Which activation function is commonly used in hidden layers of Deep Neural Networks?', options: ['Sigmoid', 'Tanh', 'ReLU', 'Softmax'], correct: 2 },
-  { text: 'What does SQL stand for?', options: ['Simple Query Language', 'Structured Query Language', 'Sequential Query Language', 'Standard Query Language'], correct: 1 },
+  { text: 'What is the purpose of a Confusion Matrix?', options: ['To confuse the model', 'To evaluate classification performance', 'To handle missing values', 'To count rows'], correct: 1 },
+  { text: 'What is "Overfitting"?', options: ['Model is too simple', 'Model performs well on training but poorly on test data', 'Model is too large', 'None'], correct: 1 },
+  { text: 'Which activation function is commonly used in hidden layers?', options: ['Sigmoid', 'Tanh', 'ReLU', 'Softmax'], correct: 2 },
+  { text: 'What does SQL stand for?', options: ['Simple Query Language', 'Structured Query Language', 'Sequential Query Language', 'None'], correct: 1 },
 ];
 
 const YOUTUBE_DS_VIDEOS = [
-  'https://www.youtube.com/watch?v=ua-CiDNNj30', // Pandas
-  'https://www.youtube.com/watch?v=7eh4d6sabA0', // Machine Learning
-  'https://www.youtube.com/watch?v=fHI8X4OXW-Q', // Data Science Roadmap
-  'https://www.youtube.com/watch?v=px67Wj9rP_0', // Statistics
+  'https://www.youtube.com/watch?v=ua-CiDNNj30',
+  'https://www.youtube.com/watch?v=7eh4d6sabA0',
+  'https://www.youtube.com/watch?v=fHI8X4OXW-Q',
+  'https://www.youtube.com/watch?v=px67Wj9rP_0',
+  'https://www.youtube.com/watch?v=RBSGKlAvoiM',
 ];
 
 async function runSeed() {
   try {
-    console.log('🚀 Starting Data Science Specialization Seeder...');
+    console.log('🚀 Starting Massive Data Science Seeder...');
     
-    if (!MONGO_URI) {
-      throw new Error('MONGO_URI is not defined in .env');
-    }
+    if (!MONGO_URI) throw new Error('MONGO_URI is not defined');
 
     await mongoose.connect(MONGO_URI);
     console.log('✅ Connected to MongoDB.');
 
     // Clearing existing data
-    console.log('🧹 Clearing existing data...');
-    const collections = [User, Category, Course, Module, Lesson, Quiz, Question, Enrollment, LessonProgress, QuizAttempt, CodingLab];
-    for (const model of collections) {
-      await model.deleteMany({});
-    }
+    console.log('🧹 Clearing existing database...');
+    const models = [User, Category, Course, Module, Lesson, Quiz, Question, Enrollment, LessonProgress, QuizAttempt, CodingLab, Specialization];
+    for (const model of models) await model.deleteMany({});
     console.log('✅ Database cleared.');
 
     // 1. Create Admin
-    console.log('👤 Creating Admin...');
-    const admin = await User.create({
-      name: 'DS Admin',
+    await User.create({
+      name: 'Bilal Shabbir (Admin)',
       email: 'admin@skillforge.com',
       password: 'Admin@123456',
       role: 'admin',
@@ -138,44 +175,40 @@ async function runSeed() {
     });
 
     // 2. Create Categories
-    console.log('📂 Creating Categories...');
     const categoryMap = {};
     for (const cat of DS_CATEGORIES) {
-      const createdCat = await Category.create(cat);
-      categoryMap[cat.slug] = createdCat._id;
+      const created = await Category.create(cat);
+      categoryMap[cat.slug] = created._id;
     }
 
     // 3. Create Instructors
-    console.log('👨‍🏫 Creating Instructors...');
     const instructors = [];
-    for (let i = 1; i <= 3; i++) {
-      const inst = await User.create({
-        name: `DS Instructor ${i}`,
+    for (let i = 1; i <= 5; i++) {
+      instructors.push(await User.create({
+        name: faker.person.fullName(),
         email: `instructor${i}@skillforge.com`,
         password: 'Test@123456',
         role: 'instructor',
         status: 'active',
-        bio: `Professional Data Scientist with ${i*3} years of experience in the industry.`
-      });
-      instructors.push(inst);
+        bio: faker.person.bio(),
+        profilePicture: `https://i.pravatar.cc/150?u=inst${i}`
+      }));
     }
 
-    // 4. Create Students
-    console.log('👨‍🎓 Creating Students...');
+    // 4. Create Students (50 Students)
     const students = [];
-    for (let i = 1; i <= 10; i++) {
-      const student = await User.create({
-        name: `DS Student ${i}`,
+    for (let i = 1; i <= 50; i++) {
+      students.push(await User.create({
+        name: faker.person.fullName(),
         email: `student${i}@skillforge.com`,
         password: 'Test@123456',
         role: 'student',
-        status: 'active'
-      });
-      students.push(student);
+        status: 'active',
+        profilePicture: `https://i.pravatar.cc/150?u=stud${i}`
+      }));
     }
 
-    // 5. Create Courses, Modules, Lessons, and Quizzes
-    console.log('📚 Building Curricula...');
+    // 5. Create Courses
     const createdCourses = [];
     for (let i = 0; i < DS_COURSES.length; i++) {
       const courseData = DS_COURSES[i];
@@ -187,11 +220,11 @@ async function runSeed() {
         instructor: instructor._id,
         category: categoryMap[courseData.category],
         thumbnail: `https://picsum.photos/seed/ds-${i}/800/450`,
-        price: i === 0 ? 0 : 49.99,
+        price: i === 0 ? 0 : (29.99 + (i * 10)).toFixed(2),
         difficulty: courseData.difficulty,
         tags: courseData.tags,
-        prerequisites: ['Basic Math', 'Curiosity'],
-        whatYouWillLearn: courseData.tags.map(tag => `Master ${tag} for real-world projects`),
+        prerequisites: ['Basic Python Knowledge', 'Statistics Fundamentals'],
+        whatYouWillLearn: courseData.tags.map(tag => `Become an expert in ${tag}`),
         status: 'approved'
       });
       createdCourses.push(course);
@@ -210,7 +243,7 @@ async function runSeed() {
 
         for (let lIdx = 0; lIdx < modData.lessons.length; lIdx++) {
           const lessonData = modData.lessons[lIdx];
-          await Lesson.create({
+          const lesson = await Lesson.create({
             module: module._id,
             course: course._id,
             title: lessonData.title,
@@ -221,22 +254,39 @@ async function runSeed() {
           });
           totalDuration += lessonData.duration;
           totalLessons++;
+
+          // Add interactive quiz to the very first lesson
+          if (i === 0 && mIdx === 0 && lIdx === 0) {
+             const q = await Question.create({
+                text: 'Which Python library is best for data manipulation?',
+                options: [
+                  { label: 'A', text: 'Pandas' },
+                  { label: 'B', text: 'Flask' },
+                  { label: 'C', text: 'Django' },
+                  { label: 'D', text: 'React' }
+                ],
+                correctOption: 0,
+                order: 1
+             });
+             await Lesson.findByIdAndUpdate(lesson._id, {
+                $push: { interactiveQuizzes: { timestamp: 15, question: q._id } }
+             });
+          }
         }
 
-        // Create Quiz for module
         const quiz = await Quiz.create({
           module: module._id,
           course: course._id,
-          title: `${modData.title} Quiz`,
+          title: `${modData.title} Final Check`,
           passingScore: 70
         });
 
-        for (let qIdx = 0; qIdx < 4; qIdx++) {
+        for (let qIdx = 0; qIdx < 5; qIdx++) {
           const qData = DS_QUESTIONS[Math.floor(Math.random() * DS_QUESTIONS.length)];
           await Question.create({
             quiz: quiz._id,
             text: qData.text,
-            options: qData.options.map((o, idx) => ({ label: ['A', 'B', 'C', 'D'][idx], text: o })),
+            options: qData.options.map((o, idx) => ({ label: String.fromCharCode(65 + idx), text: o })),
             correctOption: qData.correct,
             order: qIdx + 1
           });
@@ -245,76 +295,54 @@ async function runSeed() {
 
       await Course.findByIdAndUpdate(course._id, { totalDuration, totalLessons });
 
-      // Seed a Coding Lab for the first module of the first course (Python/Pandas)
+      // Add Coding Lab for the Python course
       if (i === 0) {
-        console.log('💻 Seeding Coding Lab for Python course...');
-        const firstModule = await Module.findOne({ course: course._id, order: 1 });
         await CodingLab.create({
-          module: firstModule._id,
+          module: (await Module.findOne({ course: course._id, order: 1 }))._id,
           course: course._id,
-          title: 'Your First Pandas DataFrame',
-          instructions: 'Welcome to your first hands-on lab! \n\nIn this challenge, you need to create a simple Pandas DataFrame and print its shape. \n\nTasks:\n1. Import pandas as pd.\n2. Create a dictionary with two keys: "Name" (with values ["Alice", "Bob"]) and "Age" (with values [25, 30]).\n3. Convert this dictionary into a DataFrame named `df`.\n4. Print the shape of the DataFrame using `print(df.shape)`.',
-          starterCode: 'import pandas as pd\n\n# Your code here\n',
-          solutionCode: 'import pandas as pd\ndata = {"Name": ["Alice", "Bob"], "Age": [25, 30]}\ndf = pd.DataFrame(data)\nprint(df.shape)',
+          title: 'Your First Pandas Lab',
+          instructions: '1. Import pandas as pd\n2. Create a list [10, 20, 30]\n3. Print its sum using Python sum() function.',
+          starterCode: 'import pandas as pd\n# Write code below\n',
+          solutionCode: 'import pandas as pd\nprint(sum([10,20,30]))',
           language: 'python',
-          languageId: 71, // Python 3
-          testCases: [
-            { input: '', expectedOutput: '(2, 2)', isHidden: false }
-          ]
+          testCases: [{ input: '', expectedOutput: '60', isHidden: false }]
         });
       }
     }
 
     // 6. Specializations
-    console.log('🏆 Creating Specializations...');
     await Specialization.create({
-      title: 'Data Science & Machine Learning Professional Certificate',
-      description: 'Master the most in-demand skills in the tech industry. This specialization covers everything from Python basics to advanced Machine Learning algorithms. You will work with real-world datasets and build a portfolio of projects.',
+      title: 'Professional Data Scientist Certificate',
+      description: 'The ultimate path to becoming a Data Scientist. Covers Python, Machine Learning, Deep Learning, and SQL.',
       category: categoryMap['machine-learning'],
-      courses: createdCourses.map(c => c._id),
-      thumbnail: 'https://picsum.photos/seed/spec/1200/600',
+      courses: createdCourses.slice(0, 4).map(c => c._id),
+      thumbnail: 'https://picsum.photos/seed/fullpath/1200/600',
       status: 'published'
     });
 
-    // 7. Interactive In-Video Quiz
-    console.log('🎬 Adding Interactive Quiz to Lesson 1...');
-    const firstLesson = await Lesson.findOne({ course: createdCourses[0]._id, order: 1 });
-    const sampleQuestion = await Question.findOne({ course: createdCourses[0]._id });
-    if (firstLesson && sampleQuestion) {
-      await Lesson.findByIdAndUpdate(firstLesson._id, {
-        $push: {
-          interactiveQuizzes: {
-            timestamp: 30, // 30 seconds in
-            question: sampleQuestion._id
-          }
-        }
-      });
-    }
-
-    // 8. Enrollments
-    console.log('🤝 Enrolling Students...');
+    // 7. Random Enrollments
+    console.log('🤝 Generating Enrollments...');
     for (const student of students) {
-      // Enroll in the first (free) course
-      const course = createdCourses[0];
-      await Enrollment.create({
-        student: student._id,
-        course: course._id,
-        paymentStatus: 'free',
-        amountPaid: 0
-      });
-      await User.findByIdAndUpdate(student._id, { $addToSet: { enrolledCourses: course._id } });
-      await Course.findByIdAndUpdate(course._id, { $inc: { totalEnrollments: 1 } });
+      const numCourses = Math.floor(Math.random() * 3) + 1;
+      const shuffled = [...createdCourses].sort(() => 0.5 - Math.random());
+      const selected = shuffled.slice(0, numCourses);
+      
+      for (const course of selected) {
+        await Enrollment.create({ student: student._id, course: course._id, paymentStatus: 'paid', amountPaid: course.price });
+        await User.findByIdAndUpdate(student._id, { $addToSet: { enrolledCourses: course._id } });
+        await Course.findByIdAndUpdate(course._id, { $inc: { totalEnrollments: 1 } });
+      }
     }
 
-    console.log('\n✨ Data Science Seeding Complete!');
+    console.log('\n✨ Massive Seeding Complete!');
     console.log('-------------------------------------------');
     console.log('Admin:       admin@skillforge.com / Admin@123456');
-    console.log('Instructors: instructor1-3@skillforge.com / Test@123456');
-    console.log('Students:    student1-10@skillforge.com / Test@123456');
+    console.log('Instructors: instructor1-5@skillforge.com / Test@123456');
+    console.log('Students:    student1-50@skillforge.com / Test@123456');
     console.log('-------------------------------------------');
 
   } catch (error) {
-    console.error('❌ SEED ERROR:', error);
+    console.error('❌ Error:', error);
   } finally {
     await mongoose.disconnect();
     process.exit(0);
