@@ -84,23 +84,30 @@ const CourseCard = ({ course, showEnrollButton = true, compact = false }) => {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700 hover:border-primary-500 dark:hover:border-primary-500 group">
+    <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-[0_10px_40px_-15px_rgba(0,0,0,0.1)] hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.2)] transition-all duration-500 overflow-hidden border border-gray-100 dark:border-gray-800 hover:border-primary-500/50 group flex flex-col h-full">
       {/* Thumbnail */}
-      <Link to={`/courses/${course._id}`} className="block relative overflow-hidden">
+      <Link to={`/courses/${course._id}`} className="block relative overflow-hidden aspect-video">
         <img
           src={course.thumbnail || `https://picsum.photos/seed/${course._id}/800/450`}
           alt={course.title}
-          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
           onError={(e) => { e.target.src = `https://picsum.photos/seed/${course._id}/800/450`; }}
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-6">
+           <span className="text-white font-black text-sm tracking-widest uppercase flex items-center gap-2">
+             Quick Preview <Play className="w-4 h-4 fill-current" />
+           </span>
+        </div>
         {level && (
-          <div className="absolute top-3 right-3">
-            <span className={`px-3 py-1 text-xs font-semibold rounded-full ${getLevelColor(level)}`}>{level}</span>
+          <div className="absolute top-4 right-4">
+            <span className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg backdrop-blur-md ${getLevelColor(level)}`}>
+              {level}
+            </span>
           </div>
         )}
         {categoryName && (
-          <div className="absolute top-3 left-3">
-            <span className="px-3 py-1 text-xs font-semibold bg-black/50 text-white rounded-full backdrop-blur-sm">
+          <div className="absolute top-4 left-4">
+            <span className="px-4 py-1.5 text-[10px] font-black uppercase tracking-widest bg-black/40 text-white rounded-full backdrop-blur-md border border-white/10">
               {categoryName}
             </span>
           </div>
@@ -108,52 +115,59 @@ const CourseCard = ({ course, showEnrollButton = true, compact = false }) => {
       </Link>
 
       {/* Content */}
-      <div className="p-5">
-        <Link to={`/courses/${course._id}`}>
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 line-clamp-2 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+      <div className="p-6 flex flex-col flex-1">
+        <Link to={`/courses/${course._id}`} className="flex-1">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 line-clamp-2 hover:text-primary-600 dark:hover:text-primary-400 transition-colors leading-tight">
             {course.title}
           </h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 line-clamp-2 leading-relaxed font-medium">
+            {course.description}
+          </p>
         </Link>
 
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">{course.description}</p>
-
         {/* Instructor */}
-        <div className="flex items-center space-x-2 mb-4">
+        <div className="flex items-center space-x-3 mb-6 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-transparent group-hover:border-gray-100 dark:group-hover:border-gray-700 transition-all">
           <img
             src={instructorAvatar}
             alt={instructorName}
-            className="w-8 h-8 rounded-full border-2 border-gray-200 dark:border-gray-700 object-cover"
+            className="w-10 h-10 rounded-xl border-2 border-white dark:border-gray-700 object-cover shadow-sm"
             onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(instructorName)}&background=6366f1&color=fff`; }}
           />
-          <p className="text-sm font-medium text-gray-900 dark:text-white">{instructorName}</p>
+          <div>
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">Instructor</p>
+            <p className="text-sm font-bold text-gray-900 dark:text-white">{instructorName}</p>
+          </div>
         </div>
 
         {/* Stats */}
-        <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center space-x-4 text-xs text-gray-600 dark:text-gray-400">
+        <div className="flex items-center justify-between mb-6 pb-6 border-b border-gray-100 dark:border-gray-800">
+          <div className="flex items-center space-x-4 text-[11px] font-bold text-gray-500 uppercase tracking-wider">
             {duration && (
-              <div className="flex items-center space-x-1">
-                <Clock className="w-4 h-4" />
+              <div className="flex items-center space-x-1.5">
+                <Clock className="w-3.5 h-3.5" />
                 <span>{duration}</span>
               </div>
             )}
-            <div className="flex items-center space-x-1">
-              <Users className="w-4 h-4" />
-              <span>{students} students</span>
+            <div className="flex items-center space-x-1.5">
+              <Users className="w-3.5 h-3.5" />
+              <span>{students} Students</span>
             </div>
           </div>
           {renderStars(rating)}
         </div>
 
         {/* Price + CTA */}
-        <div className="flex items-center justify-between">
-          <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">{formatPrice(course.price)}</p>
+        <div className="flex items-center justify-between mt-auto">
+          <div>
+             <p className="text-[10px] font-black text-gray-400 uppercase tracking-tighter mb-0.5">Enrolling Price</p>
+             <p className="text-2xl font-black text-primary-600 dark:text-primary-400">{formatPrice(course.price)}</p>
+          </div>
           {showEnrollButton && (
             <Link
               to={`/courses/${course._id}`}
-              className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-lg transition-colors flex items-center space-x-2"
+              className="px-6 py-3.5 bg-primary-600 hover:bg-primary-700 text-white text-sm font-black rounded-2xl transition-all shadow-lg shadow-primary-500/20 hover:-translate-y-0.5 active:scale-95 flex items-center space-x-2 uppercase tracking-widest"
             >
-              <span>View Course</span>
+              <span>Explore</span>
               <TrendingUp className="w-4 h-4" />
             </Link>
           )}

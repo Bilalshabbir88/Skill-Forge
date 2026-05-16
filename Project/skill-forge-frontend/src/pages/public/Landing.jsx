@@ -60,95 +60,73 @@ const Landing = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-[#1a1f2e] dark:via-gray-900 dark:to-gray-950">
+    <div className="min-h-screen bg-white dark:bg-[#0a0c12]">
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-600/10 to-primary-800/5 dark:from-primary-600/20 dark:to-primary-900/10"></div>
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Hero Text */}
-            <div className="space-y-8">
-              <div className="inline-block">
-                <span className="px-4 py-2 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-sm font-semibold">
-                  🚀 #1 Learning Platform
-                </span>
-              </div>
-              
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white leading-tight">
-                Master New Skills
-                <span className="block bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">
-                  At Your Pace
-                </span>
-              </h1>
-              
-              <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
-                Join thousands of learners building their future with expert-led courses. Start learning today and unlock your potential.
-              </p>
-              
-              <div className="flex flex-wrap gap-4">
-                {isAuthenticated() ? (
-                  <Link to={user.role === 'student' ? '/student/dashboard' : `/${user.role}/dashboard`}>
-                    <Button size="lg" className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-6 text-lg">
-                      Go to Dashboard
+      <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
+        {/* Background Effects */}
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] dark:opacity-[0.05]"></div>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[600px] bg-gradient-to-b from-primary-500/10 via-primary-500/5 to-transparent blur-3xl rounded-full -z-10 pointer-events-none"></div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center max-w-4xl mx-auto space-y-8">
+            {/* Badge */}
+            <div className="inline-flex items-center justify-center p-1 bg-gray-100/80 dark:bg-gray-800/50 backdrop-blur-md rounded-full border border-gray-200 dark:border-gray-700/50 mb-4">
+              <span className="px-3 py-1 bg-white dark:bg-gray-900 text-primary-600 dark:text-primary-400 text-xs font-bold uppercase tracking-widest rounded-full shadow-sm">
+                New
+              </span>
+              <span className="px-4 text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
+                Data Science Platform v2.0 <ArrowRight className="w-4 h-4 ml-2 opacity-50" />
+              </span>
+            </div>
+
+            {/* Headline */}
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-[1.1]">
+              Master the Future of <br className="hidden sm:block" />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-blue-500 dark:from-primary-400 dark:to-blue-400">
+                Data Science & AI
+              </span>
+            </h1>
+
+            {/* Subheadline */}
+            <p className="text-xl sm:text-2xl text-gray-600 dark:text-gray-400 leading-relaxed max-w-3xl mx-auto font-medium">
+              Join thousands of learners building real-world skills with expert-led courses, interactive coding labs, and AI-powered tutoring.
+            </p>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
+              {isAuthenticated() ? (
+                <Link to={user.role === 'student' ? '/student/dashboard' : `/${user.role}/dashboard`} className="w-full sm:w-auto">
+                  <Button size="lg" className="w-full sm:w-auto bg-primary-600 hover:bg-primary-700 text-white px-10 py-7 text-lg rounded-2xl shadow-xl shadow-primary-500/20 transition-all hover:-translate-y-1">
+                    Enter Dashboard
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </Button>
+                </Link>
+              ) : (
+                <>
+                  <Link to="/register" className="w-full sm:w-auto">
+                    <Button size="lg" className="w-full sm:w-auto bg-primary-600 hover:bg-primary-700 text-white px-10 py-7 text-lg rounded-2xl shadow-xl shadow-primary-500/20 transition-all hover:-translate-y-1">
+                      Start Learning Free
                       <ArrowRight className="ml-2 w-5 h-5" />
                     </Button>
                   </Link>
-                ) : (
-                  <>
-                    <Link to="/register">
-                      <Button size="lg" className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-6 text-lg">
-                        Get Started Free
-                        <ArrowRight className="ml-2 w-5 h-5" />
-                      </Button>
-                    </Link>
-                    <Link to="/courses">
-                      <Button size="lg" variant="outline" className="px-8 py-6 text-lg border-2">
-                        Browse Courses
-                        <Play className="ml-2 w-5 h-5" />
-                      </Button>
-                    </Link>
-                  </>
-                )}
-              </div>
-              
-              {/* Trust Indicators */}
-              <div className="flex flex-wrap items-center gap-6 pt-4">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span className="text-sm text-gray-600 dark:text-gray-400">No credit card required</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Cancel anytime</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Lifetime access</span>
-                </div>
-              </div>
+                  <Link to="/courses" className="w-full sm:w-auto">
+                    <Button size="lg" variant="outline" className="w-full sm:w-auto px-10 py-7 text-lg rounded-2xl border-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all">
+                      <Play className="mr-2 w-5 h-5" />
+                      View Catalog
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
-            
-            {/* Hero Image/Illustration */}
-            <div className="relative">
-              <div className="relative aspect-square rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 p-8 shadow-2xl">
-                <div className="absolute inset-0 bg-grid-white/10 rounded-2xl"></div>
-                <div className="relative h-full flex items-center justify-center">
-                  <div className="text-center space-y-6 text-white">
-                    <BookOpen className="w-32 h-32 mx-auto opacity-90" />
-                    <h3 className="text-2xl font-bold">Start Learning Today</h3>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
-                        <div className="text-3xl font-bold">1,200+</div>
-                        <div className="text-white/80">Courses</div>
-                      </div>
-                      <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
-                        <div className="text-3xl font-bold">10K+</div>
-                        <div className="text-white/80">Students</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+
+            {/* Social Proof */}
+            <div className="pt-16 flex flex-col items-center justify-center gap-4 opacity-80">
+              <p className="text-sm font-bold text-gray-500 tracking-widest uppercase">Trusted by learners from top companies</p>
+              <div className="flex items-center gap-8 grayscale opacity-50 dark:invert">
+                <div className="text-xl font-black">GOOGLE</div>
+                <div className="text-xl font-black">MICROSOFT</div>
+                <div className="text-xl font-black">META</div>
+                <div className="text-xl font-black">AMAZON</div>
               </div>
             </div>
           </div>

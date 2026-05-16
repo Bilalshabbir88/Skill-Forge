@@ -130,36 +130,53 @@ const StudentDashboard = () => {
           <div className="lg:col-span-2 space-y-8">
             {/* Resume Learning Section */}
             {resumeCourse && (
-              <Card className="p-6 bg-gradient-to-br from-primary-500 to-primary-700 border-0">
-                <div className="flex items-center justify-between text-white">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-primary-100 mb-1">Continue Learning</p>
-                    <h3 className="text-xl font-bold mb-2">{resumeCourse.course?.title}</h3>
-                    <div className="flex items-center space-x-4 mb-4">
-                      <div className="flex items-center space-x-2">
-                        <Clock size={16} className="text-primary-100" />
-                        <span className="text-sm text-primary-100">
-                        {Math.round(resumeCourse.progressPercent)}% Complete
-                        </span>
+              <Card className="relative overflow-hidden group border-0 shadow-2xl rounded-3xl">
+                {/* Background Gradient & Pattern */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary-600 via-primary-700 to-indigo-800"></div>
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/circuit-board.png')] opacity-10"></div>
+                <div className="absolute -right-20 -top-20 w-64 h-64 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all duration-700"></div>
+
+                <div className="relative p-8 md:p-10 flex flex-col md:flex-row items-center justify-between text-white gap-8">
+                  <div className="flex-1 space-y-6">
+                    <div>
+                      <span className="px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-bold uppercase tracking-wider mb-4 inline-block">
+                        Continue where you left off
+                      </span>
+                      <h3 className="text-3xl md:text-4xl font-black leading-tight drop-shadow-sm">
+                        {resumeCourse.course?.title}
+                      </h3>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between text-sm font-bold">
+                        <span className="flex items-center gap-2"><Clock className="w-4 h-4" /> {Math.round(resumeCourse.progressPercent)}% COMPLETE</span>
+                        <span className="opacity-80">Next: {resumeCourse.course?.modules?.[0]?.title || 'Next Lesson'}</span>
+                      </div>
+                      <div className="h-3 bg-black/20 rounded-full overflow-hidden backdrop-blur-sm">
+                        <div 
+                          className="h-full bg-white rounded-full shadow-[0_0_15px_rgba(255,255,255,0.5)] transition-all duration-1000"
+                          style={{ width: `${resumeCourse.progressPercent}%` }}
+                        ></div>
                       </div>
                     </div>
-                    <Progress value={resumeCourse.progressPercent} className="h-2 bg-primary-400 mb-4" />
+
                     <button
                       onClick={() => navigate(`/student/courses/${resumeCourse.course._id}`)}
-                      className="inline-flex items-center space-x-2 px-4 py-2 bg-white text-primary-600 rounded-lg font-semibold hover:bg-primary-50 transition-colors"
+                      className="group/btn relative inline-flex items-center justify-center px-8 py-4 bg-white text-primary-700 rounded-2xl font-black text-lg shadow-xl hover:bg-primary-50 transition-all hover:-translate-y-1 active:scale-95"
                     >
-                      <Play size={16} />
-                      <span>Resume Learning</span>
-                      <ArrowRight size={16} />
+                      <Play className="mr-3 w-6 h-6 fill-current" />
+                      <span>Resume Course</span>
                     </button>
                   </div>
+
                   {resumeCourse.course?.thumbnail && (
-                    <div className="hidden md:block ml-6">
+                    <div className="relative md:w-1/3 aspect-video rounded-2xl overflow-hidden shadow-2xl border-4 border-white/20 transform group-hover:rotate-1 transition-transform duration-500">
                       <img
                         src={resumeCourse.course.thumbnail}
                         alt={resumeCourse.course.title}
-                        className="w-40 h-24 object-cover rounded-lg shadow-lg"
+                        className="w-full h-full object-cover"
                       />
+                      <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
                     </div>
                   )}
                 </div>
