@@ -1,0 +1,65 @@
+// Mock Announcements Data
+export const announcements = [
+  {
+    _id: 'announce_001',
+    title: 'Platform Maintenance Scheduled',
+    message: 'The platform will undergo maintenance on March 30, 2024 from 2:00 AM to 4:00 AM UTC. During this time, some features may be temporarily unavailable.',
+    type: 'warning',
+    date: '2024-03-25T10:00:00Z',
+    priority: 'high',
+    author: 'Admin User',
+    target: 'all', // all, students, instructors, admins
+  },
+  {
+    _id: 'announce_002',
+    title: 'New Courses Available!',
+    message: 'Check out our latest courses on Data Science and Machine Learning. Enroll now and get 20% off for the first week!',
+    type: 'info',
+    date: '2024-03-20T10:00:00Z',
+    priority: 'medium',
+    author: 'Admin User',
+    target: 'students',
+  },
+  {
+    _id: 'announce_003',
+    title: 'Certificate Download Feature',
+    message: 'You can now download your certificates in PDF format directly from your dashboard. Check the "My Certificates" section.',
+    type: 'success',
+    date: '2024-03-15T10:00:00Z',
+    priority: 'low',
+    author: 'Admin User',
+    target: 'students',
+  },
+  {
+    _id: 'announce_004',
+    title: 'Instructor Payout Updates',
+    message: 'We have updated our payout schedule. Payments will now be processed on the 1st and 15th of each month.',
+    type: 'info',
+    date: '2024-03-18T10:00:00Z',
+    priority: 'medium',
+    author: 'Admin User',
+    target: 'instructors',
+  },
+  {
+    _id: 'announce_005',
+    title: 'Welcome to Skill Forge!',
+    message: 'Start your learning journey today! Browse our catalog of expert-led courses and begin building your skills.',
+    type: 'success',
+    date: '2024-03-01T10:00:00Z',
+    priority: 'low',
+    author: 'Admin User',
+    target: 'students',
+  },
+  {
+    _id: 'announce_006',
+    title: 'New Analytics Dashboard for Instructors',
+    message: 'Track your student engagement and course performance with our new analytics dashboard. Check it out now!',
+    type: 'success',
+    date: '2024-03-12T10:00:00Z',
+    priority: 'medium',
+    author: 'Admin User',
+    target: 'instructors',
+  },
+];
+
+export default announcements;

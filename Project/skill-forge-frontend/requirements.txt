@@ -1,0 +1,84 @@
+# Skill Forge Frontend - Requirements
+# Node.js Project Dependencies
+
+# ============================================
+# SYSTEM REQUIREMENTS
+# ============================================
+Node.js: v18.0.0 or higher (Recommended: v20.x+)
+npm: v9.0.0 or higher (Recommended: v10.x+)
+Git: Latest version
+
+# ============================================
+# PRODUCTION DEPENDENCIES
+# ============================================
+@base-ui/react@^1.3.0
+@fontsource-variable/geist@^5.2.8
+axios@^1.14.0
+class-variance-authority@^0.7.1
+clsx@^2.1.1
+html2canvas@^1.4.1
+jspdf@^4.2.1
+jwt-decode@^4.0.0
+lucide-react@^1.7.0
+react@^19.2.4
+react-dom@^19.2.4
+react-hot-toast@^2.6.0
+react-player@^3.4.0
+react-router-dom@^7.14.0
+shadcn@^4.1.2
+tailwind-merge@^3.5.0
+tw-animate-css@^1.4.0
+
+# ============================================
+# DEVELOPMENT DEPENDENCIES
+# ============================================
+@eslint/js@^9.39.4
+@tailwindcss/postcss@^4.2.2
+@types/react@^19.2.14
+@types/react-dom@^19.2.3
+@vitejs/plugin-react@^6.0.1
+autoprefixer@^10.4.27
+eslint@^9.39.4
+eslint-plugin-react-hooks@^7.0.1
+eslint-plugin-react-refresh@^0.5.2
+globals@^17.4.0
+postcss@^8.5.8
+tailwindcss@^4.2.2
+vite@^8.0.1
+
+# ============================================
+# INSTALLATION INSTRUCTIONS
+# ============================================
+# 1. Verify Node.js and npm versions:
+#    node --version
+#    npm --version
+#
+# 2. Install all dependencies:
+#    npm install
+#
+# 3. Run development server:
+#    npm run dev
+#
+# 4. Build for production:
+#    npm run build
+
+# ============================================
+# SUPPORTED BROWSERS
+# ============================================
+Chrome: Latest 2 versions (90+)
+Firefox: Latest 2 versions (88+)
+Safari: Latest 2 versions (14+)
+Edge: Latest 2 versions (90+)
+
+# ============================================
+# NOTES
+# ============================================
+# - All dependencies managed via npm (package.json)
+# - Project uses ES Modules
+# - Vite v8 as build tool
+# - React 19 with modern features
+# - Tailwind CSS v4 for styling
+# - No backend required (uses mock data)
+
+# Last Updated: April 8, 2026
+# Version: 1.0.0
