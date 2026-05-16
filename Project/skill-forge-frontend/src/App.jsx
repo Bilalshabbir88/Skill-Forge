@@ -3,6 +3,7 @@ import Landing from './pages/public/Landing';
 import CourseCatalog from './pages/public/CourseCatalog';
 import CourseDetail from './pages/public/CourseDetail';
 import Specializations from './pages/public/Specializations';
+import SpecializationDetail from './pages/public/SpecializationDetail';
 import Datasets from './pages/public/Datasets';
 import Login from './pages/public/Login';
 import Register from './pages/public/Register';
@@ -37,8 +38,8 @@ function App() {
           <Route path="/courses" element={<CourseCatalog />} />
           <Route path="/courses/:id" element={<CourseDetail />} />
           <Route path="/specializations" element={<Specializations />} />
-          <Route path="/datasets" element={<Datasets />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/specializations/:id" element={<SpecializationDetail />} />
+          <Route path="/datasets" element={<Datasets />} />          <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/verify/:certificateId" element={<div className="min-h-screen flex items-center justify-center"><p className="text-gray-500">Certificate verification coming soon.</p></div>} />

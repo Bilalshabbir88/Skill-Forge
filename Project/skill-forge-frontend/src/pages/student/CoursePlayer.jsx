@@ -23,6 +23,7 @@ const CoursePlayer = () => {
 
   const [course, setCourse] = useState(null);
   const [modules, setModules] = useState([]);
+  const [enrollmentId, setEnrollmentId] = useState(null);
   const [currentLesson, setCurrentLesson] = useState(null);
   const [currentLab, setCurrentLab] = useState(null);
   const [viewMode, setViewMode] = useState('video'); // 'video' or 'lab'
@@ -56,9 +57,9 @@ const CoursePlayer = () => {
       const res = await api.get(`/courses/${id}/full`);
       const courseData = res.data.data;
       setCourse(courseData);
-      const mods = courseData.modules || [];
+      const mods = courseData?.modules || [];
       setModules(mods);
-      if (mods.length > 0 && mods[0].lessons?.length > 0) {
+      if (mods.length > 0 && mods[0]?.lessons?.length > 0) {
         setCurrentLesson(mods[0].lessons[0]);
       }
     } catch (error) {
@@ -70,6 +71,7 @@ const CoursePlayer = () => {
   };
 
   const fetchModuleLabs = async (moduleId) => {
+    if (!moduleId) return;
     try {
       const res = await api.get(`/modules/${moduleId}/labs`);
       setLabs(res.data.data || []);
@@ -82,8 +84,9 @@ const CoursePlayer = () => {
     try {
       const res = await api.get(`/progress/course/${id}`);
       const progressData = res.data.data;
+      setEnrollmentId(progressData?._id);
       const map = {};
-      (progressData.lessonProgresses || []).forEach((p) => {
+      (progressData?.lessonProgresses || []).forEach((p) => {
         map[p.lesson] = { isCompleted: p.isCompleted, watchedSeconds: p.watchedSeconds };
       });
       setProgress(map);
@@ -113,9 +116,6 @@ const CoursePlayer = () => {
           ...prev,
           [lesson._id]: { ...prev[lesson._id], isCompleted: result.isCompleted, watchedSeconds: watchedSeconds.current },
         }));
-        if (result.isCompleted && !progress[lesson._id]?.isCompleted) {
-          // auto next logic could go here
-        }
       }
     }, 10000);
   };
@@ -165,6 +165,7 @@ const CoursePlayer = () => {
   };
 
   const handleQuizSubmit = () => {
+    if (!activeQuiz?.question) return;
     if (selectedOption === activeQuiz.question.correctOption) {
       setQuizResult('correct');
       setTimeout(() => {
@@ -181,8 +182,8 @@ const CoursePlayer = () => {
     return (
       <div className="min-h-screen bg-gray-950 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading course...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading course player...</p>
         </div>
       </div>
     );
@@ -212,10 +213,10 @@ const CoursePlayer = () => {
             <span className="text-sm font-medium">Dashboard</span>
           </button>
           <div className="hidden md:block h-6 w-px bg-gray-700"></div>
-          <h1 className="hidden md:block text-lg font-bold text-white truncate max-w-md">{course.title}</h1>
+          <h1 className="hidden md:block text-lg font-bold text-white truncate max-w-md">{course?.title}</h1>
         </div>
         <div className="flex items-center space-x-2">
-           {labs.length > 0 && (
+           {labs?.length > 0 && (
              <div className="flex bg-gray-800 rounded-lg p-1 mr-4">
                 <button 
                   onClick={() => setViewMode('video')}
@@ -253,7 +254,7 @@ const CoursePlayer = () => {
                     <VideoPlayer
                       videoUrl={videoUrl}
                       lessonId={currentLesson?._id}
-                      enrollmentId={id} 
+                      enrollmentId={enrollmentId} 
                       interactiveQuizzes={currentLesson?.interactiveQuizzes || []}
                       onQuizTrigger={(quiz) => setActiveQuiz(quiz)}
                       onLessonComplete={() => {}}
@@ -285,14 +286,14 @@ const CoursePlayer = () => {
                         {currentLesson.attachments.map((att, i) => (
                           <a
                             key={i}
-                            href={att.url}
+                            href={att?.url}
                             target="_blank"
                             rel="noreferrer"
                             className="flex items-center justify-between p-4 bg-gray-800/50 rounded-xl hover:bg-gray-800 transition-colors border border-transparent hover:border-gray-700"
                           >
                             <div className="flex items-center gap-3">
                               <FileText className="w-5 h-5 text-primary-400" />
-                              <span className="text-sm font-medium text-white">{att.name}</span>
+                              <span className="text-sm font-medium text-white">{att?.name}</span>
                             </div>
                             <Download className="w-5 h-5 text-gray-500" />
                           </a>
@@ -330,15 +331,15 @@ const CoursePlayer = () => {
                     <p>Select a lab from the list below</p>
                   </div>
                 )}
-                {labs.length > 1 && (
+                {labs?.length > 1 && (
                    <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
                       {labs.map((l, idx) => (
                         <button 
-                          key={l._id}
+                          key={l?._id}
                           onClick={() => setCurrentLab(l)}
-                          className={`px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all border ${currentLab?._id === l._id ? 'bg-primary-600/20 border-primary-500 text-primary-400' : 'bg-gray-900 border-gray-800 text-gray-500 hover:text-white'}`}
+                          className={`px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all border ${currentLab?._id === l?._id ? 'bg-primary-600/20 border-primary-500 text-primary-400' : 'bg-gray-900 border-gray-800 text-gray-500 hover:text-white'}`}
                         >
-                          Lab {idx + 1}: {l.title}
+                          Lab {idx + 1}: {l?.title}
                         </button>
                       ))}
                    </div>
@@ -353,19 +354,19 @@ const CoursePlayer = () => {
           <div className="w-full md:w-96 flex-shrink-0 bg-gray-900 border-l border-gray-800 overflow-y-auto">
             <div className="p-4">
               <h3 className="text-lg font-bold text-white mb-4">Course Content</h3>
-              {modules.map((mod, mIdx) => (
-                <div key={mod._id} className="mb-4">
+              {modules?.map((mod, mIdx) => (
+                <div key={mod?._id} className="mb-4">
                   <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wider px-2 mb-2">
-                    Module {mIdx + 1}: {mod.title}
+                    Module {mIdx + 1}: {mod?.title}
                   </h4>
                   <div className="space-y-1">
-                    {(mod.lessons || []).map((lesson) => {
-                      const isActive = currentLesson?._id === lesson._id;
-                      const isCompleted = progress[lesson._id]?.isCompleted;
+                    {(mod?.lessons || []).map((lesson) => {
+                      const isActive = currentLesson?._id === lesson?._id;
+                      const isCompleted = progress[lesson?._id]?.isCompleted;
                       const locked = isLessonLocked(lesson);
                       return (
                         <button
-                          key={lesson._id}
+                          key={lesson?._id}
                           onClick={() => { if (!locked) { stopProgressPing(); setCurrentLesson(lesson); setViewMode('video'); } }}
                           disabled={locked}
                           className={`w-full text-left px-3 py-3 rounded-lg transition-all flex items-center gap-3 ${
@@ -386,8 +387,8 @@ const CoursePlayer = () => {
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">{lesson.title}</p>
-                            <p className="text-xs opacity-60">{Math.round((lesson.duration || 0) / 60)} min</p>
+                            <p className="text-sm font-medium truncate">{lesson?.title}</p>
+                            <p className="text-xs opacity-60">{Math.round((lesson?.duration || 0) / 60)} min</p>
                           </div>
                         </button>
                       );
@@ -401,7 +402,7 @@ const CoursePlayer = () => {
       </div>
 
       {/* AI Tutor */}
-      <AITutor context={`Student is watching ${course.title}, currently at module "${currentLesson?.module}" and lesson "${currentLesson?.title}". Description: ${currentLesson?.description}`} />
+      {course && <AITutor context={`Student is watching ${course?.title}, currently at module "${currentLesson?.module}" and lesson "${currentLesson?.title}". Description: ${currentLesson?.description}`} />}
 
       {/* In-Video Quiz Modal */}
       {activeQuiz && (
@@ -417,9 +418,9 @@ const CoursePlayer = () => {
             </DialogHeader>
             
             <div className="py-4">
-              <h3 className="text-lg font-bold mb-4">{activeQuiz.question?.text}</h3>
+              <h3 className="text-lg font-bold mb-4">{activeQuiz?.question?.text}</h3>
               <div className="space-y-2">
-                {activeQuiz.question?.options?.map((opt, idx) => (
+                {activeQuiz?.question?.options?.map((opt, idx) => (
                   <button
                     key={idx}
                     onClick={() => setSelectedOption(idx)}
@@ -429,7 +430,7 @@ const CoursePlayer = () => {
                         : 'border-gray-800 bg-gray-800/50 hover:bg-gray-800'
                     }`}
                   >
-                    <span className="font-bold mr-3">{opt.label}.</span> {opt.text}
+                    <span className="font-bold mr-3">{opt?.label || String.fromCharCode(65 + idx)}.</span> {opt?.text}
                   </button>
                 ))}
               </div>

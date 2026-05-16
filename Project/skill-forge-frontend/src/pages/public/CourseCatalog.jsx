@@ -5,6 +5,8 @@ import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import CourseCard from '../../components/shared/CourseCard';
 import Loader from '../../components/shared/Loader';
+import Navbar from '../../components/shared/Navbar';
+import Footer from '../../components/shared/Footer';
 import api from '../../api/api';
 
 const CourseCatalog = () => {
@@ -32,8 +34,8 @@ const CourseCatalog = () => {
         api.get('/categories')
       ]);
 
-      const coursesData = coursesRes.data.data?.courses || [];
-      const categoriesData = categoriesRes.data.data || [];
+      const coursesData = coursesRes.data?.data?.courses || [];
+      const categoriesData = categoriesRes.data?.data || [];
       
       setCourses(coursesData);
       setFilteredCourses(coursesData);
@@ -48,27 +50,24 @@ const CourseCatalog = () => {
   const filterCourses = () => {
     let filtered = [...courses];
 
-    // Search filter
     if (searchTerm) {
       filtered = filtered.filter(
         (course) =>
-          course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          course.description.toLowerCase().includes(searchTerm.toLowerCase())
+          course.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          course.description?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    // Category filter — category is populated: { name, slug }
     if (selectedCategory !== 'all') {
       filtered = filtered.filter(
         (course) => (course.category?.name || course.category) === selectedCategory
       );
     }
 
-    // Price filter
     if (priceFilter === 'free') {
-      filtered = filtered.filter((course) => course.price === 0);
+      filtered = filtered.filter((course) => (course.price || 0) === 0);
     } else if (priceFilter === 'paid') {
-      filtered = filtered.filter((course) => course.price > 0);
+      filtered = filtered.filter((course) => (course.price || 0) > 0);
     }
 
     setFilteredCourses(filtered);
@@ -84,153 +83,101 @@ const CourseCatalog = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen bg-white dark:bg-[#0a0c12] flex items-center justify-center">
         <Loader />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0a0c12]">
+      <Navbar />
+      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Header */}
-        <div className="mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Explore Courses
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white mb-4 tracking-tight">
+            Explore <span className="text-primary-600">Data Science</span>
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-400">
-            Discover {courses.length} courses to boost your skills
+          <p className="text-xl text-gray-600 dark:text-gray-400 font-medium">
+            Discover {courses.length} specialized courses and labs
           </p>
         </div>
 
-        {/* Search and Filters */}
-        <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 p-6 mb-8">
-          {/* Search Bar */}
-          <div className="relative mb-6">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+        <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-800 p-8 mb-12">
+          <div className="relative mb-8">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <Input
               type="text"
-              placeholder="Search courses by title or description..."
+              placeholder="Search by topic, library, or skill..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-6 text-base"
+              className="pl-12 pr-4 py-8 text-lg rounded-2xl bg-gray-50 dark:bg-gray-800 border-none focus:ring-2 focus:ring-primary-500 shadow-inner"
             />
           </div>
 
-          {/* Filters */}
-          <div className="space-y-4">
-            {/* Category Filter */}
+          <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                <Filter className="inline w-4 h-4 mr-2" />
-                Category
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-4">
+                Specialized Categories
               </label>
               <div className="flex flex-wrap gap-2">
                 {categories.map((category) => (
-                  <Badge
+                  <button
                     key={category}
-                    variant={selectedCategory === category ? 'default' : 'outline'}
-                    className={`cursor-pointer px-4 py-2 text-sm ${
-                      selectedCategory === category
-                        ? 'bg-primary-600 text-white hover:bg-primary-700'
-                        : 'hover:bg-gray-100 dark:hover:bg-gray-800'
-                    }`}
                     onClick={() => setSelectedCategory(category)}
+                    className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                      selectedCategory === category
+                        ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30 translate-y-[-2px]'
+                        : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                    }`}
                   >
-                    {category === 'all' ? 'All Categories' : category}
-                  </Badge>
+                    {category === 'all' ? 'All Path' : category}
+                  </button>
                 ))}
               </div>
             </div>
 
-            {/* Price Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                Price
-              </label>
-              <div className="flex gap-2">
-                <Badge
-                  variant={priceFilter === 'all' ? 'default' : 'outline'}
-                  className={`cursor-pointer px-4 py-2 ${
-                    priceFilter === 'all'
-                      ? 'bg-primary-600 text-white'
-                      : 'hover:bg-gray-100 dark:hover:bg-gray-800'
-                  }`}
-                  onClick={() => setPriceFilter('all')}
-                >
-                  All Prices
-                </Badge>
-                <Badge
-                  variant={priceFilter === 'free' ? 'default' : 'outline'}
-                  className={`cursor-pointer px-4 py-2 ${
-                    priceFilter === 'free'
-                      ? 'bg-primary-600 text-white'
-                      : 'hover:bg-gray-100 dark:hover:bg-gray-800'
-                  }`}
-                  onClick={() => setPriceFilter('free')}
-                >
-                  Free
-                </Badge>
-                <Badge
-                  variant={priceFilter === 'paid' ? 'default' : 'outline'}
-                  className={`cursor-pointer px-4 py-2 ${
-                    priceFilter === 'paid'
-                      ? 'bg-primary-600 text-white'
-                      : 'hover:bg-gray-100 dark:hover:bg-gray-800'
-                  }`}
-                  onClick={() => setPriceFilter('paid')}
-                >
-                  Paid
-                </Badge>
-              </div>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-6 border-t border-gray-100 dark:border-gray-800">
+               <div className="flex items-center gap-3">
+                  <span className="text-xs font-black text-gray-400 uppercase tracking-widest mr-2">Pricing</span>
+                  {['all', 'free', 'paid'].map(p => (
+                    <button 
+                      key={p} 
+                      onClick={() => setPriceFilter(p)}
+                      className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-tighter border-2 transition-all ${priceFilter === p ? 'border-primary-500 text-primary-600 bg-primary-50 dark:bg-primary-900/10' : 'border-transparent text-gray-500 hover:bg-gray-50'}`}
+                    >
+                      {p}
+                    </button>
+                  ))}
+               </div>
+               
+               {hasActiveFilters && (
+                 <button onClick={clearFilters} className="text-xs font-black text-red-500 uppercase tracking-widest flex items-center gap-1 hover:underline">
+                    <X size={14} /> Clear All
+                 </button>
+               )}
             </div>
-
-            {/* Clear Filters */}
-            {hasActiveFilters && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearFilters}
-                className="text-primary-600 hover:text-primary-700 dark:text-primary-400"
-              >
-                <X className="w-4 h-4 mr-2" />
-                Clear all filters
-              </Button>
-            )}
           </div>
         </div>
 
-        {/* Results Count */}
-        <div className="mb-6">
-          <p className="text-gray-600 dark:text-gray-400">
-            Showing <span className="font-semibold text-gray-900 dark:text-white">{filteredCourses.length}</span> {filteredCourses.length === 1 ? 'course' : 'courses'}
-          </p>
-        </div>
-
-        {/* Course Grid */}
         {filteredCourses.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
             {filteredCourses.map((course) => (
-              <CourseCard key={course._id} course={course} />
+              <CourseCard key={course?._id} course={course} />
             ))}
           </div>
         ) : (
-          <div className="text-center py-20">
-            <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-              <Search className="w-12 h-12 text-gray-400" />
-            </div>
-            <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
-              No courses found
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Try adjusting your search or filters to find what you're looking for.
-            </p>
-            <Button onClick={clearFilters} variant="outline">
-              Clear Filters
+          <div className="text-center py-32 bg-white dark:bg-gray-900 rounded-[3rem] border border-dashed border-gray-200 dark:border-gray-800">
+            <Search className="w-16 h-16 mx-auto text-gray-200 mb-6" />
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">No results found</h3>
+            <p className="text-gray-500 mt-2 mb-8">Try different keywords or filters.</p>
+            <Button onClick={clearFilters} variant="outline" className="rounded-xl border-2 font-bold px-8">
+               Clear All Filters
             </Button>
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 };

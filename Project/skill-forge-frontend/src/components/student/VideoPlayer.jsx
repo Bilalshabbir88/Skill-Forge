@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 import ReactPlayer from 'react-player';
-import { Play, Pause, Volume2, VolumeX, Maximize, RotateCcw, Settings, HelpCircle } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Maximize, RotateCcw, Settings, HelpCircle, AlertCircle } from 'lucide-react';
 import api from '../../api/api';
 
 const VideoPlayer = ({ videoUrl, lessonId, enrollmentId, onLessonComplete, interactiveQuizzes = [], onQuizTrigger }) => {
@@ -11,38 +11,53 @@ const VideoPlayer = ({ videoUrl, lessonId, enrollmentId, onLessonComplete, inter
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.8);
   const [muted, setMuted] = useState(false);
-  const [ready, setReady] = useState(false);
+  const [seeking, setSeeking] = useState(false);
   const [progressSent, setProgressSent] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Auto-play when ready
+  const [ready, setReady] = useState(false);
 
   const handleProgress = async (state) => {
+    if (seeking) return;
     setPlayed(state.played);
     const currentTime = state.playedSeconds;
 
-    // Check for interactive quizzes
-    interactiveQuizzes.forEach(quiz => {
-      const qId = quiz._id || quiz.question;
-      if (Math.abs(currentTime - quiz.timestamp) < 1 && !triggeredQuizzes.current.has(qId)) {
-        setPlaying(false);
-        triggeredQuizzes.current.add(qId);
-        if (onQuizTrigger) onQuizTrigger(quiz);
-      }
-    });
+    // Check for interactive quizzes (allow 1s window)
+    if (Array.isArray(interactiveQuizzes)) {
+      interactiveQuizzes.forEach(quiz => {
+        const qId = quiz?._id || quiz?.question;
+        if (qId && Math.abs(currentTime - quiz.timestamp) < 1.5 && !triggeredQuizzes.current.has(qId)) {
+          setPlaying(false); // Pause video
+          triggeredQuizzes.current.add(qId);
+          if (onQuizTrigger) onQuizTrigger(quiz);
+        }
+      });
+    }
 
     // Mark as complete when 90% watched (only once)
     if (state.played > 0.9 && !progressSent && enrollmentId && lessonId) {
-      setProgressSent(true);
       try {
-        await api.put(`/enrollments/${enrollmentId}/progress`, {
-          lessonId,
-          completed: true,
-        });
-        if (onLessonComplete) {
-          onLessonComplete(lessonId);
-        }
-      } catch (error) {
-        console.error('Error updating progress:', error);
+        setProgressSent(true);
+        await api.post(`/progress/lesson/${lessonId}/complete`, { enrollmentId });
+        if (onLessonComplete) onLessonComplete();
+      } catch (err) {
+        console.error('Failed to update progress:', err);
       }
     }
+  };
+
+  const handleSeekChange = (e) => {
+    setPlayed(parseFloat(e.target.value));
+  };
+
+  const handleSeekMouseDown = () => {
+    setSeeking(true);
+  };
+
+  const handleSeekMouseUp = (e) => {
+    setSeeking(false);
+    playerRef.current.seekTo(parseFloat(e.target.value));
   };
 
   const handleDuration = (duration) => {
@@ -51,6 +66,7 @@ const VideoPlayer = ({ videoUrl, lessonId, enrollmentId, onLessonComplete, inter
 
   const handleReady = () => {
     setReady(true);
+    setPlaying(true);
   };
 
   const handlePlayPause = () => {
@@ -61,172 +77,114 @@ const VideoPlayer = ({ videoUrl, lessonId, enrollmentId, onLessonComplete, inter
     setVolume(parseFloat(e.target.value));
   };
 
-  const handleMuteToggle = () => {
+  const toggleMute = () => {
     setMuted(!muted);
   };
 
-  const handleSeek = (e) => {
-    const seekTo = parseFloat(e.target.value);
-    setPlayed(seekTo);
-    playerRef.current?.seekTo(seekTo);
+  const restartVideo = () => {
+    playerRef.current.seekTo(0);
+    setPlaying(true);
+    triggeredQuizzes.current.clear();
   };
 
-  const handleRestart = () => {
-    playerRef.current?.seekTo(0);
-    setPlayed(0);
-    setProgressSent(false);
-  };
-
-  const handleFullscreen = () => {
-    const player = playerRef.current?.wrapper;
-    if (player?.requestFullscreen) {
-      player.requestFullscreen();
-    } else if (player?.webkitRequestFullscreen) {
-      player.webkitRequestFullscreen();
-    } else if (player?.msRequestFullscreen) {
-      player.msRequestFullscreen();
-    }
-  };
-
-  const formatTime = (seconds) => {
-    const date = new Date(seconds * 1000);
-    const hh = date.getUTCHours();
-    const mm = date.getUTCMinutes();
-    const ss = date.getUTCSeconds().toString().padStart(2, '0');
-    if (hh) {
-      return `${hh}:${mm.toString().padStart(2, '0')}:${ss}`;
-    }
-    return `${mm}:${ss}`;
+  const handleError = (e) => {
+    console.error('Video Player Error:', e);
+    setError('Failed to load video. Please check the URL or your connection.');
   };
 
   return (
-    <div className="relative bg-black rounded-lg overflow-hidden shadow-2xl">
-      {/* Loading Overlay */}
-      {!ready && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-900 z-10">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
-            <p className="text-white text-sm">Loading video...</p>
-          </div>
+    <div className="relative aspect-video bg-black rounded-3xl overflow-hidden shadow-2xl group border-4 border-white/5">
+      {error ? (
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-white bg-gray-900 p-8 text-center">
+          <AlertCircle className="w-16 h-16 text-red-500 mb-4" />
+          <h3 className="text-xl font-bold mb-2">Video Unplayable</h3>
+          <p className="text-gray-400 max-w-sm">{error}</p>
         </div>
-      )}
+      ) : (
+        <>
+          <ReactPlayer
+            ref={playerRef}
+            url={videoUrl}
+            width="100%"
+            height="100%"
+            playing={playing}
+            volume={volume}
+            muted={muted}
+            onProgress={handleProgress}
+            onDuration={handleDuration}
+            onReady={handleReady}
+            onError={handleError}
+            config={{
+              youtube: { playerVars: { showinfo: 0, rel: 0, modestbranding: 1 } }
+            }}
+          />
 
-      {/* React Player */}
-      <div className="relative aspect-video">
-        <ReactPlayer
-          ref={playerRef}
-          url={videoUrl}
-          width="100%"
-          height="100%"
-          playing={playing}
-          volume={volume}
-          muted={muted}
-          onProgress={handleProgress}
-          onDuration={handleDuration}
-          onReady={handleReady}
-          onEnded={() => {
-            setPlaying(false);
-            if (onLessonComplete) onLessonComplete(lessonId);
-          }}
-          config={{
-            file: {
-              attributes: {
-                preload: 'metadata',
-                controlsList: 'nodownload',
-              },
-            },
-          }}
-        />
-      </div>
-
-      {/* Custom Controls Overlay */}
-      {ready && (
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-4">
-          {/* Progress Bar */}
-          <div className="mb-3">
+          {/* Custom Overlay Controls */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-6">
+            {/* Seek Bar */}
             <input
               type="range"
               min={0}
               max={0.999999}
               step="any"
               value={played}
-              onChange={handleSeek}
-              className="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
-              style={{
-                background: `linear-gradient(to right, rgb(59, 130, 246) 0%, rgb(59, 130, 246) ${
-                  played * 100
-                }%, rgb(75, 85, 99) ${played * 100}%, rgb(75, 85, 99) 100%)`,
-              }}
+              onMouseDown={handleSeekMouseDown}
+              onChange={handleSeekChange}
+              onMouseUp={handleSeekMouseUp}
+              className="w-full h-1.5 bg-white/30 rounded-lg appearance-none cursor-pointer accent-primary-500 mb-4"
             />
-          </div>
 
-          {/* Controls */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              {/* Play/Pause */}
-              <button
-                onClick={handlePlayPause}
-                className="w-9 h-9 flex items-center justify-center bg-primary-600 hover:bg-primary-700 rounded-full transition-colors"
-              >
-                {playing ? <Pause size={18} className="text-white" /> : <Play size={18} className="text-white" />}
-              </button>
-
-              {/* Restart */}
-              <button
-                onClick={handleRestart}
-                className="w-9 h-9 flex items-center justify-center hover:bg-white/20 rounded-full transition-colors"
-              >
-                <RotateCcw size={18} className="text-white" />
-              </button>
-
-              {/* Volume */}
-              <div className="flex items-center space-x-2">
-                <button onClick={handleMuteToggle} className="hover:bg-white/20 p-2 rounded">
-                  {muted || volume === 0 ? (
-                    <VolumeX size={18} className="text-white" />
-                  ) : (
-                    <Volume2 size={18} className="text-white" />
-                  )}
+            <div className="flex items-center justify-between text-white">
+              <div className="flex items-center gap-6">
+                <button onClick={handlePlayPause} className="hover:scale-110 transition-transform">
+                  {playing ? <Pause className="w-8 h-8 fill-current" /> : <Play className="w-8 h-8 fill-current" />}
                 </button>
-                <input
-                  type="range"
-                  min={0}
-                  max={1}
-                  step={0.1}
-                  value={muted ? 0 : volume}
-                  onChange={handleVolumeChange}
-                  className="w-20 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer"
-                />
+                
+                <div className="flex items-center gap-2 group/volume">
+                  <button onClick={toggleMute}>
+                    {muted || volume === 0 ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
+                  </button>
+                  <input
+                    type="range"
+                    min={0}
+                    max={1}
+                    step="any"
+                    value={volume}
+                    onChange={handleVolumeChange}
+                    className="w-0 group-hover/volume:w-20 transition-all h-1 bg-white/30 rounded-lg appearance-none cursor-pointer accent-white"
+                  />
+                </div>
+
+                <div className="text-sm font-bold opacity-80 tabular-nums">
+                  {Math.floor(played * duration / 60)}:{(Math.floor(played * duration % 60)).toString().padStart(2, '0')} / 
+                  {Math.floor(duration / 60)}:{(Math.floor(duration % 60)).toString().padStart(2, '0')}
+                </div>
               </div>
 
-              {/* Time */}
-              <div className="text-white text-sm font-medium">
-                {formatTime(played * duration)} / {formatTime(duration)}
+              <div className="flex items-center gap-4">
+                <button onClick={restartVideo} className="p-2 hover:bg-white/10 rounded-full">
+                  <RotateCcw className="w-5 h-5" />
+                </button>
+                <button className="p-2 hover:bg-white/10 rounded-full">
+                  <Settings className="w-5 h-5" />
+                </button>
               </div>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              {/* Settings (placeholder) */}
-              <button className="w-9 h-9 flex items-center justify-center hover:bg-white/20 rounded-full transition-colors">
-                <Settings size={18} className="text-white" />
-              </button>
-
-              {/* Fullscreen */}
-              <button
-                onClick={handleFullscreen}
-                className="w-9 h-9 flex items-center justify-center hover:bg-white/20 rounded-full transition-colors"
-              >
-                <Maximize size={18} className="text-white" />
-              </button>
             </div>
           </div>
-        </div>
+
+          {/* Interactive Quiz Active Badge */}
+          {interactiveQuizzes.length > 0 && (
+            <div className="absolute top-6 left-6 flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 scale-0 group-hover:scale-100 transition-transform">
+              <HelpCircle className="w-4 h-4 text-primary-400" />
+              <span className="text-[10px] font-black text-white uppercase tracking-widest">{interactiveQuizzes.length} Knowledge Checks Active</span>
+            </div>
+          )}
+        </>
       )}
 
-      {/* Progress Badge */}
-      {played > 0.9 && (
-        <div className="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg flex items-center space-x-1">
-          <span>✓ Lesson Complete</span>
+      {!ready && !error && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-900">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
         </div>
       )}
     </div>

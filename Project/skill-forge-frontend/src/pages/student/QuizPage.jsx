@@ -1,18 +1,23 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
-import api from '@/api/api';
-import QuizForm from '@/components/student/QuizForm';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { useAuth } from '../../context/AuthContext';
+import api from '../../api/api';
+import QuizForm from '../../components/student/QuizForm';
+import { Button } from '../../components/ui/button';
+import { Card, CardContent } from '../../components/ui/card';
 import { 
   ArrowLeft, 
   Trophy, 
   RotateCcw, 
   FileText, 
   Loader2,
-  AlertTriangle
+  AlertTriangle,
+  HelpCircle,
+  CheckCircle,
+  XCircle
 } from 'lucide-react';
+import Navbar from '../../components/shared/Navbar';
+import Footer from '../../components/shared/Footer';
 
 export default function QuizPage() {
   const { courseId } = useParams();
@@ -36,33 +41,35 @@ export default function QuizPage() {
       setLoading(true);
       setError(null);
 
-      // 1) Fetch course info
       const courseRes = await api.get(`/courses/${courseId}`);
-      const courseData = courseRes.data.data;
+      const courseData = courseRes.data?.data;
       setCourse(courseData);
 
-      // 2) Find the first module that has a quiz
-      const mods = courseData.modules || [];
-      if (mods.length === 0) throw new Error('No modules found for this course.');
-
+      // Search all modules for a quiz
+      const mods = courseData?.modules || [];
       let foundQuiz = null;
       let foundModuleId = null;
+
       for (const mod of mods) {
         if (mod.hasQuiz) {
           try {
             const qRes = await api.get(`/courses/${courseId}/modules/${mod._id}/quiz`);
-            foundQuiz = qRes.data.data;
-            foundModuleId = mod._id;
-            break;
-          } catch { /* try next module */ }
+            if (qRes.data?.data?.quiz) {
+              foundQuiz = qRes.data.data;
+              foundModuleId = mod._id;
+              break;
+            }
+          } catch (e) {
+            console.warn(`Module ${mod._id} quiz fetch failed, trying next...`);
+          }
         }
       }
 
-      if (!foundQuiz) throw new Error('No quiz found for this course.');
+      if (!foundQuiz) throw new Error('Technical assessment is not yet available for this course.');
       setQuiz({ ...foundQuiz.quiz, questions: foundQuiz.questions, moduleId: foundModuleId });
     } catch (err) {
       console.error('Error fetching quiz:', err);
-      setError(err.response?.data?.message || err.message || 'Failed to load quiz.');
+      setError(err.response?.data?.message || err.message || 'Failed to load assessment.');
     } finally {
       setLoading(false);
     }
@@ -71,9 +78,8 @@ export default function QuizPage() {
   const handleSubmitQuiz = async (selectedAnswers) => {
     try {
       setSubmitting(true);
-      if (!quiz?.moduleId) throw new Error('Quiz module not found.');
+      if (!quiz?.moduleId) throw new Error('Assessment module not found.');
 
-      // Transform { questionId: optionIndex } → [{ questionId, selectedOption }]
       const answers = Object.entries(selectedAnswers).map(([questionId, selectedOption]) => ({
         questionId,
         selectedOption,
@@ -84,178 +90,84 @@ export default function QuizPage() {
         { answers }
       );
 
-      const result = response.data.data;
-      setScore(result.score);
+      const result = response.data?.data;
+      setScore(result?.score);
       setIsSubmitted(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       console.error('Error submitting quiz:', err);
-      alert(err.response?.data?.message || 'Failed to submit quiz. Please try again.');
+      alert(err.response?.data?.message || 'Failed to grade assessment. Please try again.');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleRetakeQuiz = () => {
-    setIsSubmitted(false);
-    setScore(null);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 text-primary-500 animate-spin mx-auto mb-4" />
-          <p className="text-gray-400">Loading quiz...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
-        <Card className="bg-gray-900 border-gray-800 max-w-md w-full">
-          <CardContent className="p-6 text-center">
-            <AlertTriangle className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-gray-100 mb-2">
-              Unable to Load Quiz
-            </h2>
-            <p className="text-gray-400 mb-6">{error}</p>
-            <div className="flex gap-3 justify-center">
-              <Button variant="outline" onClick={() => navigate(-1)}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Go Back
-              </Button>
-              <Button onClick={fetchQuizData}>
-                <RotateCcw className="w-4 h-4 mr-2" />
-                Try Again
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  if (!quiz || !quiz.questions || quiz.questions.length === 0) {
-    return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
-        <Card className="bg-gray-900 border-gray-800 max-w-md w-full">
-          <CardContent className="p-6 text-center">
-            <FileText className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-gray-100 mb-2">
-              No Quiz Available
-            </h2>
-            <p className="text-gray-400 mb-6">
-              This course doesn't have a quiz yet.
-            </p>
-            <Button onClick={() => navigate(-1)}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Course
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  const passingScore = 70;
-  const hasPassed = score !== null && score >= passingScore;
+  if (loading) return <div className="min-h-screen bg-white dark:bg-[#0a0c12] flex items-center justify-center"><Loader2 className="w-12 h-12 text-primary-600 animate-spin" /></div>;
 
   return (
-    <div className="min-h-screen bg-gray-950 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <Button
-            variant="ghost"
-            onClick={() => navigate(-1)}
-            className="mb-4 text-gray-400 hover:text-gray-200"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Course
-          </Button>
-
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-100 mb-2">
-                {course?.title} - Final Quiz
-              </h1>
-              <p className="text-gray-400">
-                {quiz.questions.length} questions • Passing score: {passingScore}%
-              </p>
-            </div>
-
-            {isSubmitted && hasPassed && (
-              <Link to={`/student/certificate/${courseId}`}>
-                <Button className="flex items-center gap-2">
-                  <Trophy className="w-4 h-4" />
-                  View Certificate
-                </Button>
-              </Link>
-            )}
-          </div>
-        </div>
-
-        {/* Instructions (only before submission) */}
-        {!isSubmitted && (
-          <Card className="bg-blue-500/10 border-blue-500/30 mb-8">
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold text-blue-400 mb-2">
-                Instructions
-              </h3>
-              <ul className="space-y-1 text-gray-300 text-sm">
-                <li>• Answer all questions before submitting</li>
-                <li>• Select the best answer for each question</li>
-                <li>• You need {passingScore}% to pass and earn a certificate</li>
-                <li>• You can retake the quiz if you don't pass</li>
-              </ul>
-            </CardContent>
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0a0c12]">
+      <Navbar />
+      <div className="max-w-4xl mx-auto py-16 px-4">
+        {error ? (
+          <Card className="p-12 text-center rounded-[3rem] border-none shadow-2xl">
+             <AlertTriangle className="w-20 h-20 text-yellow-500 mx-auto mb-6" />
+             <h2 className="text-3xl font-black mb-4">Assessment Pending</h2>
+             <p className="text-gray-500 mb-8 max-w-sm mx-auto">{error}</p>
+             <Button onClick={() => navigate(-1)} className="rounded-2xl h-14 px-12 font-bold">Back to Course</Button>
           </Card>
-        )}
-
-        {/* Quiz Form */}
-        {submitting ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <Loader2 className="w-12 h-12 text-primary-500 animate-spin mx-auto mb-4" />
-              <p className="text-gray-400">Grading your quiz...</p>
-            </div>
-          </div>
         ) : (
-          <QuizForm
-            questions={quiz.questions}
-            onSubmit={handleSubmitQuiz}
-            isSubmitted={isSubmitted}
-            score={score}
-          />
-        )}
+          <>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+               <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-[10px] font-black text-primary-600 uppercase tracking-widest bg-primary-50 px-3 py-1 rounded-full">Knowledge Check</span>
+                    <span className="text-xs font-bold text-gray-400">Course Verification</span>
+                  </div>
+                  <h1 className="text-4xl font-black text-gray-900 dark:text-white tracking-tight">{course?.title}</h1>
+               </div>
+               
+               {isSubmitted && score >= 70 && (
+                 <Button asChild className="bg-green-600 hover:bg-green-700 rounded-2xl h-14 px-8 font-black uppercase tracking-widest shadow-lg shadow-green-500/20">
+                   <Link to={`/student/certificate/${courseId}`}><Trophy className="mr-2 w-5 h-5" /> Claim Certificate</Link>
+                 </Button>
+               )}
+            </div>
 
-        {/* Action Buttons (after submission) */}
-        {isSubmitted && (
-          <div className="flex justify-center gap-4 mt-8">
-            <Button
-              variant="outline"
-              onClick={handleRetakeQuiz}
-              className="min-w-[160px]"
-            >
-              <RotateCcw className="w-4 h-4 mr-2" />
-              Retake Quiz
-            </Button>
-
-            {hasPassed && (
-              <Link to={`/student/certificate/${courseId}`}>
-                <Button className="min-w-[160px]">
-                  <Trophy className="w-4 h-4 mr-2" />
-                  View Certificate
-                </Button>
-              </Link>
+            {submitting ? (
+              <Card className="p-20 text-center rounded-[3rem] border-none shadow-xl bg-white dark:bg-gray-900">
+                 <Loader2 className="w-16 h-16 text-primary-600 animate-spin mx-auto mb-6" />
+                 <h2 className="text-2xl font-black mb-2">Grading your response...</h2>
+                 <p className="text-gray-500">Calculating your Data Science proficiency.</p>
+              </Card>
+            ) : (
+              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-5 duration-700">
+                 <QuizForm
+                    questions={quiz?.questions || []}
+                    onSubmit={handleSubmitQuiz}
+                    isSubmitted={isSubmitted}
+                    score={score}
+                 />
+                 
+                 {isSubmitted && (
+                    <div className="flex justify-center gap-4 pt-8">
+                       <Button variant="outline" onClick={() => { setIsSubmitted(false); setScore(null); }} className="h-14 px-10 rounded-2xl font-bold border-2">
+                          <RotateCcw className="mr-2 w-4 h-4" /> Try Again
+                       </Button>
+                       {score >= 70 ? (
+                         <Button asChild className="h-14 px-10 rounded-2xl font-black bg-primary-600">
+                            <Link to={`/student/certificate/${courseId}`}>View Certificate</Link>
+                         </Button>
+                       ) : (
+                         <Button variant="ghost" onClick={() => navigate(-1)} className="h-14 px-10 rounded-2xl font-bold text-gray-500">Return to Course</Button>
+                       )}
+                    </div>
+                 )}
+              </div>
             )}
-          </div>
+          </>
         )}
       </div>
+      <Footer />
     </div>
   );
 }

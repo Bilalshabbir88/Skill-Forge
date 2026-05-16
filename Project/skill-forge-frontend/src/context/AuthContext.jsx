@@ -49,11 +49,21 @@ export const AuthProvider = ({ children }) => {
 
   // Called after Google OAuth redirect — token is in URL query param
   const loginWithToken = async (jwtToken) => {
-    localStorage.setItem('skillforge-token', jwtToken);
-    setToken(jwtToken);
-    const res = await api.get('/auth/me');
-    setUser(res.data.data);
-    return res.data.data;
+    try {
+      localStorage.setItem('skillforge-token', jwtToken);
+      setToken(jwtToken);
+      const res = await api.get('/auth/me');
+      const userData = res.data?.data;
+      if (!userData) throw new Error('User data missing from token response');
+      setUser(userData);
+      return userData;
+    } catch (error) {
+      console.error('OAuth token login failed:', error);
+      localStorage.removeItem('skillforge-token');
+      setToken(null);
+      setUser(null);
+      throw error;
+    }
   };
 
   const register = async (userData) => {

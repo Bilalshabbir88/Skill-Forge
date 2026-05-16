@@ -1,75 +1,58 @@
 # SkillForge: Data Science Edition — Structured User Guide 📖
 
-Welcome to SkillForge! This guide will help you navigate and master the platform, whether you are a Student, Instructor, or Admin.
+Welcome to SkillForge! This guide will help you navigate and master the platform during your presentation and beyond.
 
 ---
 
-## 🔑 Access Credentials
+## 🔑 Access Credentials (Seeded)
 
-The platform has been pre-seeded with the following accounts:
+The platform is pre-loaded with a vibrant community of 50 students and 5 master instructors.
 
-| Role | Email | Password | Details |
+| Role | Email | Password | Capacity |
 | :--- | :--- | :--- | :--- |
-| **Admin** | `admin@skillforge.com` | `Admin@123456` | Full platform control |
-| **Instructor** | `instructor1@skillforge.com` | `Test@123456` | Create courses & labs |
-| **Student** | `student1@skillforge.com` | `Test@123456` | Start learning immediately |
-
-*Note: There are 5 instructors (`instructor1-5`) and 50 students (`student1-50`) available with the same password.*
+| **Admin** | `admin@skillforge.com` | `Admin@123456` | 1 Active |
+| **Instructor** | `instructor1@skillforge.com` | `Test@123456` | 5 Available (1-5) |
+| **Student** | `student1@skillforge.com` | `Test@123456` | 50 Available (1-50) |
 
 ---
 
-## 👨‍🎓 For Students: Your Learning Journey
+## 👨‍🎓 Presentation Path: Student Experience
 
-### 1. Dashboard & Progress
-- Once logged in, your **Dashboard** shows your enrolled courses and overall completion status.
-- Use the **Course Player** to watch videos and track your progress automatically.
+### 1. Discovery
+- Start at the **Landing Page** ([http://localhost:5173](http://localhost:5173)). Show the premium hero section and social proof.
+- Navigate to **Specializations** to show the "Professional Data Scientist Certificate" track.
+- Visit the **Course Catalog** to see the 5 technical courses with live enrollment stats.
 
-### 2. Interactive Learning
-- **In-Video Quizzes:** Some videos will automatically pause at specific timestamps. You must answer the knowledge check correctly to continue.
-- **Hands-on Labs:** Click the **"Hands-on Lab"** tab in the course player to open the integrated Monaco Editor. Write Python code and run tests to verify your solution.
-- **AI Tutor:** Use the floating bot icon in the bottom-right corner to ask questions. The AI is aware of which lesson you are currently studying.
-
-### 3. Professional Tracks
-- Visit the **Specializations** page to enroll in full career paths (e.g., Professional Data Scientist). Completing all courses in a track earns you a Professional Certificate.
-
----
-
-## 👨‍🏫 For Instructors: Building Content
-
-### 1. Course Creation
-- Use your dashboard to create new courses. You can add **Modules** and **Lessons**.
-- For each lesson, you can upload video links and attach resources (PDFs, Datasets).
-
-### 2. Interactive Elements
-- **Quizzes:** Create technical quizzes for each module.
-- **Coding Labs:** (Admin/Dev feature) Instructors can define starter code and test cases for students to execute in the browser.
+### 2. Learning (Zero-Crash Verified)
+- **Login** as `student1@skillforge.com`.
+- Your **Dashboard** will show your active learning path with vibrant progress rings.
+- Click **"Resume"** to enter the **Course Player**.
+- **Interactive Video:** Play the first lesson. At the **15-second mark**, the video will automatically pause for a knowledge check.
+- **Hands-on Lab:** Click the **"Hands-on Lab"** tab. Write Python code in the Monaco Editor and click **"Run Tests"** to see Judge0 in action.
+- **AI Tutor:** Click the bot icon in the bottom-right. Ask: *"What is a Pandas DataFrame?"* and see the context-aware response.
 
 ---
 
-## 🛠️ For Admins: Platform Management
+## 👨‍🏫 Presentation Path: Instructor/Admin
 
-### 1. User Moderation
-- Approve or ban users from the **Admin Dashboard**.
-- Track platform-wide analytics and enrollment trends.
+### 1. Instructor Dashboard
+- Login as `instructor1@skillforge.com`.
+- See your **Revenue Analytics** and student enrollment trends.
+- Manage your course modules and quizzes.
 
-### 2. Course Approval
-- Review and approve courses submitted by instructors before they go live on the public catalog.
-
----
-
-## 🚀 Advanced Features Setup
-
-### In-Browser Code Execution
-- The platform uses the **Judge0 API**. Ensure your `JUDGE0_KEY` is set in the backend `.env` file for live execution.
-- If no key is provided, the platform runs in **Simulation Mode** (always passing tests for demo purposes).
-
-### AI Tutoring
-- The AI assistant requires an **OpenAI** or **Gemini** API key in the backend `.env`. 
-- The proxy logic ensures your API keys are never exposed to the frontend.
+### 2. Admin Control
+- Login as `admin@skillforge.com`.
+- Manage the global user list (Approve/Ban).
+- Review and approve new course submissions.
 
 ---
 
-## 📁 Data Management
-- **Dataset Library:** Both public and logged-in users can search the **Data Science Library** for open-source datasets to use in their projects.
+## 🛠️ Integrated Services
 
-*Happy Learning!*
+- **Code Execution:** Powered by **Judge0**. (Requires `JUDGE0_KEY` in backend `.env`).
+- **Intelligence:** Powered by **OpenAI/Gemini**. (Requires `AI_API_KEY` in backend `.env`).
+- **Reliability:** Equipped with **Global Error Boundaries** and defensive property checking to ensure a crash-free presentation.
+
+---
+
+*Good luck with your presentation!*
